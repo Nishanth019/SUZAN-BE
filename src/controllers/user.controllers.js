@@ -1,14 +1,14 @@
-const { User } = require("../models/User.model");
-const { College } = require("../models/College.model");
-const { sendOtpEmail } = require("../helpers/Email-Sender.helper");
-const { sendToken } = require("../helpers/sendToken.helper");
+const { User } = require("../models/User.model.js");
+const { College } = require("../models/College.model.js");
+const { sendOtpEmail } = require("../helpers/Email.Sender.helper.js");
+const { sendToken } = require("../helpers/sendToken.helper.js");
 
 class UserController {
     // Admin Signup
-    adminSignup = async(req, res) => {
+    adminSignup = async (req, res) => {
         try {
             const { email, password, name } = req.body;
-            
+
             // Check if email already exists
             const existingUser = await User.findOne({ email });
 
@@ -38,7 +38,7 @@ class UserController {
                 await existingUser.save();
             }
 
-            sendOtpEmail(email,'OTP', `Your otp is ${otp}`);
+            sendOtpEmail(email, 'OTP', `Your otp is ${otp}`);
 
             res.status(200).json({ message: 'OTP sent successfully' });
         } catch (error) {
@@ -71,10 +71,10 @@ class UserController {
         }
     }
 
-    completeAdminSignup = async(req, res) => {
+    completeAdminSignup = async (req, res) => {
         try {
             const { email, name, phone, gender, collegeName, streetName, city, state, pincode, country, rollNo, program, branch, batch, emailDomain } = req.body;
-    
+
             // Check if the college exists or create a new one
             let college = await College.findOne({ college_name: collegeName });
             if (!college) {
@@ -89,13 +89,13 @@ class UserController {
                 });
                 await college.save();
             }
-    
+
             const user = await User.findOne({ email });
-    
+
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-    
+
             user.name = name;
             user.phone = phone;
             user.gender = gender;
@@ -108,35 +108,35 @@ class UserController {
             user.isUserVerified = true;
             user.isAdminVerified = true;
             await user.save();
-    
+
             // Generate JWT token
             const token = await sendToken(user);
-    
+
             res.status(200).json({ message: 'Details updated successfully', token });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Internal server error' });
         }
     }
-    
+
     //student signup
-    studentSignup = async(req, res) => {
+    studentSignup = async (req, res) => {
         try {
             const { collegeName, email, password, name } = req.body;
-    
+
             // Check if email already exists
             const existingUser = await User.findOne({ email });
-    
+
             if (existingUser && existingUser.isEmailVerified && existingUser.isUserVerified) {
                 return res.status(400).json({ message: 'Account already exists' });
             }
-    
+
             let otp = Math.floor(1000 + Math.random() * 9000); // Generate random 4-digit OTP
-    
+
             if (!existingUser) {
                 // Check if the college exists or create a new one
                 let college = await College.findOne({ college_name: collegeName });
-    
+
                 const newUser = new User({
                     college: college._id, // Associate the user with the college
                     email,
@@ -151,16 +151,16 @@ class UserController {
                 existingUser.otp = otp;
                 await existingUser.save();
             }
-    
-            sendOtpEmail(email,'OTP', `Your otp is ${otp}`);
-    
+
+            sendOtpEmail(email, 'OTP', `Your otp is ${otp}`);
+
             res.status(200).json({ message: 'OTP sent successfully' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: 'Internal server error' });
         }
     }
-    
+
 
     // Verify OTP for Student Signup
     verifyOtpForStudent = async (req, res) => {
@@ -187,16 +187,16 @@ class UserController {
         }
     }
 
-    completeStudentSignup = async(req, res) => {
+    completeStudentSignup = async (req, res) => {
         try {
-            const { email, name, phone, gender, rollNo, program, branch, batch} = req.body;
-    
+            const { email, name, phone, gender, rollNo, program, branch, batch } = req.body;
+
             const user = await User.findOne({ email });
-    
+
             if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-    
+
             user.name = name;
             user.phone = phone;
             user.gender = gender;
@@ -206,10 +206,10 @@ class UserController {
             user.batch = batch;
             user.isUserVerified = true;
             await user.save();
-    
+
             // Generate JWT token
             const token = await sendToken(user);
-    
+
             res.status(200).json({ message: 'Details updated successfully', token });
         } catch (error) {
             console.error(error);
@@ -218,50 +218,50 @@ class UserController {
     }
 
     // Signin Logic
-signin = async (req, res) => {
-    try {
-        const { email, password } = req.body;
+    signin = async (req, res) => {
+        try {
+            const { email, password } = req.body;
 
-        // Find user by email
-        const user = await User.findOne({ email });
+            // Find user by email
+            const user = await User.findOne({ email });
 
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        // Check if user's email is verified
-        if (!user.isEmailVerified) {
-            return res.status(400).json({ message: 'Email not verified, Please complete the registration process' });
-        }
-
-        // Check if user's account is fully verified (for both admin and student)
-        if (!user.isUserVerified) {
-            return res.status(400).json({ message: 'Account not fully verified. Please complete the registration process' });
-        }
-
-        // Check if the user is an admin
-        if (user.role === 'admin') {
-            // Check if admin account is verified
-            if (!user.isAdminVerified) {
-                return res.status(400).json({ message: 'Admin account not verified' });
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
             }
+
+            // Check if user's email is verified
+            if (!user.isEmailVerified) {
+                return res.status(400).json({ message: 'Email not verified, Please complete the registration process' });
+            }
+
+            // Check if user's account is fully verified (for both admin and student)
+            if (!user.isUserVerified) {
+                return res.status(400).json({ message: 'Account not fully verified. Please complete the registration process' });
+            }
+
+            // Check if the user is an admin
+            if (user.role === 'admin') {
+                // Check if admin account is verified
+                if (!user.isAdminVerified) {
+                    return res.status(400).json({ message: 'Admin account not verified' });
+                }
+            }
+
+            // Check if password matches
+            if (password !== user.password) {
+                return res.status(401).json({ message: 'Incorrect password' });
+            }
+
+            // Password matches, generate token
+            const token = await sendToken(user);
+
+            res.status(200).json({ message: 'Login successful', token });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: 'Internal server error' });
         }
-
-        // Check if password matches
-        if (password !== user.password) {
-            return res.status(401).json({ message: 'Incorrect password' });
-        }
-
-        // Password matches, generate token
-        const token = await sendToken(user);
-
-        res.status(200).json({ message: 'Login successful', token });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
     }
-}
-    
+
 
 }
 
