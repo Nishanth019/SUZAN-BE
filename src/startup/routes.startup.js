@@ -5,10 +5,8 @@ const helmet = require("helmet"); // secures connection by adding additional hea
 const cors = require("cors"); // handling cors errors
 var session = require("express-session");
 
-
-
 //Routers
-// const { UserRouter } = require("../routes/users.routes");
+const { UserRouter } = require("../routes/user.routes");
 
 module.exports = (app) => {
 
@@ -42,7 +40,7 @@ module.exports = (app) => {
   );
 
   //start of routes
-//   app.use("/api/users", UserRouter);
+  app.use("/api/users", UserRouter);
 
 
   //handling async errors in apis
