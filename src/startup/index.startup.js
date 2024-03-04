@@ -7,6 +7,6 @@ module.exports = async (app) => {
 
   //Starting Server
   app.listen(PORT || 3001, () => {
-    console.log("🚀 Edzer User Server is Running on PORT =>", PORT || 3001);
+    console.log("🚀 Suzan Server is Running on PORT =>", PORT || 3001);
   });
 };

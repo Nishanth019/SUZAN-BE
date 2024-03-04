@@ -6,7 +6,7 @@ const cors = require("cors"); // handling cors errors
 var session = require("express-session");
 
 //Routers
-const { UserRouter } = require("../routes/user.routes");
+const { UserRouter } = require("../routes/user.routes.js");
 
 module.exports = (app) => {
 

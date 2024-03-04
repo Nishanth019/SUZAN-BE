@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/user.controllers');
+const {UserController }= require('../controllers/user.controllers.js');
 
-// Routes for admin signup
-router.post('/admin/signup', userController.adminSignup);
-router.post('/admin/verifyOtp', userController.verifyOtpForAdmin);
+// // Routes for admin signup
+router.post('/admin/signup', UserController.adminSignup);
+router.post('/admin/verifyOtp', UserController.verifyOtpForAdmin);
 
 // Routes for student signup
-router.post('/student/signup', userController.studentSignup);
-router.post('/student/verifyOtp', userController.verifyOtpForStudent);
+router.post('/student/signup', UserController.studentSignup);
+router.post('/student/verifyOtp', UserController.verifyOtpForStudent);
 
 // Routes for user signin
-router.post('/signin', userController.signin);
+router.post('/signin', UserController.signin);
 
 
 
-module.exports = router;
+module.exports.UserRouter = router;
