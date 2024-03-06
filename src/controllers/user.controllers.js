@@ -1,6 +1,6 @@
 const { User } = require("../models/User.model.js");
 const { College } = require("../models/College.model.js");
-const { sendOtpEmail } = require("../helpers/Email.Sender.helper.js");
+const { sendMail } = require("../helpers/Email.Sender.helper.js");
 const { sendToken } = require("../helpers/sendToken.helper.js");
 
 class UserController {
@@ -38,7 +38,7 @@ class UserController {
                 await existingUser.save();
             }
 
-            sendOtpEmail(email, 'OTP', `Your otp is ${otp}`);
+            sendMail(email, 'OTP', `Your otp is ${otp}`);
 
             res.status(200).json({ message: 'OTP sent successfully' });
         } catch (error) {
@@ -152,7 +152,7 @@ class UserController {
                 await existingUser.save();
             }
 
-            sendOtpEmail(email, 'OTP', `Your otp is ${otp}`);
+            sendMail(email, 'OTP', `Your otp is ${otp}`);
 
             res.status(200).json({ message: 'OTP sent successfully' });
         } catch (error) {
