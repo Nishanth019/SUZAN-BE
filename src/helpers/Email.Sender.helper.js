@@ -2,7 +2,7 @@
 // const nodemailer = require('nodemailer')
 
 const nodemailer = require("nodemailer");
-const { apiKey } = require("../config/sendInBlue.json");
+
 const prodApiKey = process.env.BREVO_API_KEY;
 const sendinBlueTransport = require("nodemailer-sendinblue-transport");
 const transporter = nodemailer.createTransport(
