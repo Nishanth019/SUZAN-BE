@@ -45,6 +45,7 @@ const userSchema = new Schema({
     role: {
         type: String,
         enum: ['student', 'admin', 'superadmin'],
+        default: 'student',
         required: true
     },
     otp: {
@@ -63,5 +64,6 @@ const userSchema = new Schema({
         default: false
     }
 });
+
 
 exports.User = mongoose.model("User", userSchema);
