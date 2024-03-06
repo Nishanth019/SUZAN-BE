@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const {UserController }= require('../controllers/user.controllers.js');
+const { Auth } = require('../middlewares/auth.middlewares.js');
 
 // Routes for admin signup
 router.post('/admin/signup', UserController.adminSignup);
@@ -20,5 +21,11 @@ router.post('/forgetpassword', UserController.forgetPassword);
 
 // Routes for change password
 router.post('/changepassword', UserController.verifyOtpAndChangePassword);
+
+// Route for getting current user
+router.get('/currentuser', Auth, UserController.getCurrentUser);
+
+// Route for logout
+router.post('/logout', UserController.logout);
 
 module.exports.UserRouter = router;

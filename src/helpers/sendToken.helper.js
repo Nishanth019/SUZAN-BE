@@ -1,6 +1,6 @@
 const jsonwebtoken = require("jsonwebtoken");
 
-module.exports = (user) => {
+module.exports.sendToken = (user) => {
 
   const token = jsonwebtoken.sign(
     {
@@ -12,11 +12,5 @@ module.exports = (user) => {
       expiresIn: process.env.JWT_EXPIRE,
     }
   );
-  res
-    .cookie("token", token, {
-      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      secure: true, // set to true if your using https`
-      httpOnly: true,
-      sameSite: "none",
-    })
+      return token;
 };
