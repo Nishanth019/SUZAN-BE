@@ -12,6 +12,9 @@ class UserController {
             const existingUser = await User.findOne({ email });
 
             if (existingUser && existingUser.isEmailVerified && existingUser.isUserVerified) {
+                if (existingUser.role !== 'admin') {
+                    return res.status(400).json({ success: false, message: 'This email is registered as a student' });
+                }
                 if (existingUser.isAdminVerified) {
                     return res.status(400).json({ success: false, message: 'Account already exists' });
                 }
@@ -82,15 +85,17 @@ class UserController {
     completeAdminSignup = async (req, res) => {
         try {
             const { email, name, phone, gender, college_name, street_name, city, state, pincode, country, roll_no, program, branch, batch, email_domain } = req.body;
-
+            console.log(1);
             const user = await User.findOne({ email });
-
+            console.log(2);
+            console.log(college_name)
             if (!user) {
                 return res.status(404).json({ success: false, message: 'User not found' });
             }
 
             // Check if the college exists or create a new one
-            let college = await College.findOne({ college_name: college_name });
+            let college = await College.findOne({ college_name });
+            console.log(3);
             if (college) {
                 return res.status(404).json({ success: false, message: 'College already exists' });
             }
@@ -122,8 +127,16 @@ class UserController {
 
             // Generate JWT token
             const token = await sendToken(user);
-
-            res.status(200).json({ success: true, message: 'Details updated successfully', token });
+            console.log(token)
+            res
+                .status(200)
+                .cookie("token", token, {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    secure: true, // set to true if your using https`
+                    httpOnly: true,
+                    sameSite: "none",
+                })
+                .json({ success: true, message: 'Details updated successfully', user });
         } catch (error) {
             console.error(error);
             res.status(500).json({ success: false, message: 'Internal server error' });
@@ -139,6 +152,9 @@ class UserController {
             const existingUser = await User.findOne({ email });
 
             if (existingUser && existingUser.isEmailVerified && existingUser.isUserVerified) {
+                if (existingUser.role !== 'student') {
+                    return res.status(400).json({ success: false, message: 'This email is registered as an admin' });
+                }
                 return res.status(400).json({ success: false, message: 'Account already exists' });
             }
 
@@ -164,8 +180,8 @@ class UserController {
                 existingUser.college = college._id, // Associate the user with the college
                     existingUser.name = name;
                 existingUser.password = hashedPassword;
-                    existingUser.otp = otp;
-                    existingUser.role = role;
+                existingUser.otp = otp;
+                existingUser.role = role;
                 await existingUser.save();
             }
 
@@ -227,7 +243,15 @@ class UserController {
             // Generate JWT token
             const token = await sendToken(user);
 
-            res.status(200).json({ success: true, message: 'Details updated successfully', token });
+            res
+                .status(200)
+                .cookie("token", token, {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    secure: true, // set to true if your using https`
+                    httpOnly: true,
+                    sameSite: "none",
+                })
+                .json({ success: true, message: 'Details updated successfully', user });
         } catch (error) {
             console.error(error);
             res.status(500).json({ success: false, message: 'Internal server error' });
@@ -274,7 +298,15 @@ class UserController {
             // Password matches, generate token
             const token = await sendToken(user);
 
-            res.status(200).json({ success: true, message: 'Login successful', token });
+            res
+                .status(200)
+                .cookie("token", token, {
+                    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+                    secure: true, // set to true if your using https`
+                    httpOnly: true,
+                    sameSite: "none",
+                })
+                .json({ success: true, message: 'Login successful', user });
         } catch (error) {
             console.error(error);
             res.status(500).json({ success: false, message: 'Internal server error' });
@@ -337,6 +369,31 @@ class UserController {
         }
     }
 
+    // get logged in user
+    getCurrentUser = async (req, res) => {
+        const { email } = req.user;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    };
+
+    logout = (req, res) => {
+        try {
+            // Clear the cookie containing the authentication token
+            res.clearCookie("token");
+
+            // Optionally, you can send a response indicating successful logout
+            res.status(200).json({ success: true, message: 'Logout successful' });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ success: false, message: 'Internal server error' });
+        }
+    }
 }
 
 module.exports.UserController = new UserController();

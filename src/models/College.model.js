@@ -5,7 +5,8 @@ const Schema = mongoose.Schema;
 const collegeSchema = new Schema({
     college_name: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     street_name: {
         type: String
@@ -32,4 +33,4 @@ const collegeSchema = new Schema({
     }
 });
 
-exports.User = mongoose.model("College", collegeSchema);
+exports.College = mongoose.model("College", collegeSchema);

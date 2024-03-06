@@ -3,7 +3,9 @@ const express = require("express");
 const morgan = require("morgan"); // for consoling api request calls
 const helmet = require("helmet"); // secures connection by adding additional header
 const cors = require("cors"); // handling cors errors
+const cookieParser = require("cookie-parser"); // handling cookies
 var session = require("express-session");
+
 
 //Routers
 const { UserRouter } = require("../routes/user.routes.js");
@@ -26,6 +28,7 @@ module.exports = (app) => {
     next();
   });
   app.use(express.urlencoded({ extended: true })); // parses encoded url
+  app.use(cookieParser());
   app.use(morgan("tiny")); // initiating console api requests
   app.use(helmet());
   app.use(cors(corsOptions));
