@@ -6,13 +6,19 @@ const { Auth } = require("../middlewares/auth.middlewares.js");
 // Route for getting current user
 router.get("/currentuser", Auth, UserController.getCurrentUser);
 
+// Route for updating a user
+router.put("/updateuser", Auth, UserController.updateUser);
+
+// Route for deleting a user 
+router.delete("/deleteuser", Auth, UserController.deleteUser);
+
 // Route for accessing the user by ID
-router.get("/:id", UserController.getUserFromId);
+router.get("/getuser/:id", UserController.getUserFromId);
 
 // Route for deleting a user by ID
-router.delete("/:id", UserController.deleteUser);
+router.delete("/deleteuser/:id", UserController.deleteUserById);
 
 // Route for updating a user by ID
-router.put("/:id", UserController.updateUser);
+router.put("/updateuser/:id", UserController.updateUserById);
 
 module.exports.UserRouter = router;

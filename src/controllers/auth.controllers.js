@@ -206,12 +206,10 @@ class AuthController {
     }
 
     // Extract domain from college record
-    let college_domain = college.college_domain;
-    var parts = college_domain.split('@');
-    var domain = parts[1];
+    let email_domain = college.email_domain;
 
     // Check if the entered email matches the college domain
-    if (email.split('@')[1] !== domain) {
+    if (email.split('@')[1] !== email_domain) {
         return res.status(400).json({ success: false, message: "Please enter your college email" });
     }
 

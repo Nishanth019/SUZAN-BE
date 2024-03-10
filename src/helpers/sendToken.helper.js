@@ -1,6 +1,7 @@
 const jsonwebtoken = require("jsonwebtoken");
 
 module.exports.sendToken = (user) => {
+  const expiresIn = 7 * 24 * 60 * 60;
 
   const token = jsonwebtoken.sign(
     {
@@ -9,7 +10,7 @@ module.exports.sendToken = (user) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: process.env.JWT_EXPIRE,
+      expiresIn: expiresIn,
     }
   );
       return token;
