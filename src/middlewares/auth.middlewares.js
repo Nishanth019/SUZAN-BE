@@ -34,7 +34,7 @@ module.exports.Auth = async (req, res, next) => {
   
       // Attach the decoded user to the request object
       req.user = decoded;
-  
+      console.log(req.user);
       // Call next middleware
       next();
     } catch (error) {

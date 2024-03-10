@@ -23,7 +23,6 @@ router.post("/forgetpassword", AuthController.forgetPassword);
 // Routes for change password
 router.post("/changepassword", AuthController.verifyOtpAndChangePassword);
 
-
 // Route for logout
 router.post("/logout", AuthController.logout);
 
