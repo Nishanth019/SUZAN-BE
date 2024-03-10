@@ -98,7 +98,7 @@ class AuthController {
         await user.save();
         res
           .status(200)
-          .json({ success: true, message: "OTP verified successfully" });
+          .json({ success: true, message: "OTP verified successfully", id: user._id});
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
@@ -129,9 +129,9 @@ class AuthController {
         batch,
         email_domain,
       } = req.body;
-      console.log(1);
+     
       const user = await User.findOne({ email });
-      console.log(2);
+
       console.log(college_name);
       if (!user) {
         return res
@@ -141,7 +141,7 @@ class AuthController {
 
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name });
-      console.log(3);
+ 
       if (college) {
         return res
           .status(404)
@@ -287,7 +287,7 @@ class AuthController {
         await user.save();
         res
           .status(200)
-          .json({ success: true, message: "OTP verified successfully" });
+          .json({ success: true, message: "OTP verified successfully", id: user._id });
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
