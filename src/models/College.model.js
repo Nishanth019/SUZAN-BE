@@ -30,6 +30,11 @@ const collegeSchema = new Schema({
     email_domain: {
         type: String,
         required: true
+    },
+    isVerified: {
+        type: Boolean,
+        required: true,
+        default: false
     }
 });
 

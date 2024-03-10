@@ -198,6 +198,23 @@ class AuthController {
     try {
       const { college_name, email, password, name, role } = req.body;
 
+    // Check if the college exists or create a new one
+    let college = await College.findOne({ college_name: college_name });
+
+    if (!college) {
+        return res.status(400).json({ success: false, message: "College not found" });
+    }
+
+    // Extract domain from college record
+    let college_domain = college.college_domain;
+    var parts = college_domain.split('@');
+    var domain = parts[1];
+
+    // Check if the entered email matches the college domain
+    if (email.split('@')[1] !== domain) {
+        return res.status(400).json({ success: false, message: "Please enter your college email" });
+    }
+
       // Check if email already exists
       const existingUser = await User.findOne({ email });
 
@@ -220,9 +237,6 @@ class AuthController {
       let otp = Math.floor(1000 + Math.random() * 9000); // Generate random 4-digit OTP
 
       const hashedPassword = Hasher.hash(password, 10);
-
-      // Check if the college exists or create a new one
-      let college = await College.findOne({ college_name: college_name });
 
       if (!existingUser) {
         const newUser = new User({
