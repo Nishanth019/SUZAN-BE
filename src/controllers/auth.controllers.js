@@ -96,9 +96,11 @@ class AuthController {
         user.otp = -1;
         user.isEmailVerified = true;
         await user.save();
-        res
-          .status(200)
-          .json({ success: true, message: "OTP verified successfully", id: user._id});
+        res.status(200).json({
+          success: true,
+          message: "OTP verified successfully",
+          id: user._id,
+        });
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
@@ -129,7 +131,7 @@ class AuthController {
         batch,
         email_domain,
       } = req.body;
-     
+
       const user = await User.findOne({ email });
 
       console.log(college_name);
@@ -141,7 +143,7 @@ class AuthController {
 
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name });
- 
+
       if (college) {
         return res
           .status(404)
@@ -198,22 +200,24 @@ class AuthController {
     try {
       const { college_name, email, password, name, role } = req.body;
 
-    // Check if the college exists or create a new one
-    let college = await College.findOne({ college_name: college_name });
+      // Check if the college exists or create a new one
+      let college = await College.findOne({ college_name: college_name });
 
-    if (!college) {
-        return res.status(400).json({ success: false, message: "College not found" });
-    }
-
-    // Extract domain from college record
-    let college_domain = college.college_domain;
-    var parts = college_domain.split('@');
-    var domain = parts[1];
-
-    // Check if the entered email matches the college domain
-    if (email.split('@')[1] !== domain) {
-        return res.status(400).json({ success: false, message: "Please enter your college email" });
-    }
+      if (!college) {
+        return res
+          .status(400)
+          .json({ success: false, message: "College not found" });
+      }
+      console.log(2, college);
+      // Extract domain from college record
+      let email_domain = college.email_domain;
+      console.log(3, email_domain, email.split("@")[1]);
+      // Check if the entered email matches the college domain
+      if (email.split("@")[1] !== email_domain) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Please enter your college email" });
+      }
 
       // Check if email already exists
       const existingUser = await User.findOne({ email });
@@ -285,9 +289,11 @@ class AuthController {
         user.otp = -1;
         user.isEmailVerified = true;
         await user.save();
-        res
-          .status(200)
-          .json({ success: true, message: "OTP verified successfully", id: user._id });
+        res.status(200).json({
+          success: true,
+          message: "OTP verified successfully",
+          id: user._id,
+        });
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
@@ -491,7 +497,6 @@ class AuthController {
     }
   };
 
-
   logout = (req, res) => {
     try {
       // Clear the cookie containing the authentication token
@@ -506,7 +511,6 @@ class AuthController {
         .json({ success: false, message: "Internal server error" });
     }
   };
-
 }
 
 module.exports.AuthController = new AuthController();
