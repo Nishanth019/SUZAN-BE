@@ -203,21 +203,17 @@ class AuthController {
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name: college_name });
 
-      if (!college) {
-        return res
-          .status(400)
-          .json({ success: false, message: "College not found" });
-      }
-      console.log(2, college);
-      // Extract domain from college record
-      let email_domain = college.email_domain;
-      console.log(3, email_domain, email.split("@")[1]);
-      // Check if the entered email matches the college domain
-      if (email.split("@")[1] !== email_domain) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Please enter your college email" });
-      }
+    if (!college) {
+        return res.status(400).json({ success: false, message: "College not found" });
+    }
+
+    // Extract domain from college record
+    let email_domain = college.email_domain;
+
+    // Check if the entered email matches the college domain
+    if (email.split('@')[1] !== email_domain) {
+        return res.status(400).json({ success: false, message: "Please enter your college email" });
+    }
 
       // Check if email already exists
       const existingUser = await User.findOne({ email });
