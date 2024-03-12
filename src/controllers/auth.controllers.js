@@ -96,9 +96,11 @@ class AuthController {
         user.otp = -1;
         user.isEmailVerified = true;
         await user.save();
-        res
-          .status(200)
-          .json({ success: true, message: "OTP verified successfully", id: user._id});
+        res.status(200).json({
+          success: true,
+          message: "OTP verified successfully",
+          id: user._id,
+        });
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
@@ -129,7 +131,7 @@ class AuthController {
         batch,
         email_domain,
       } = req.body;
-     
+
       const user = await User.findOne({ email });
 
       console.log(college_name);
@@ -141,7 +143,7 @@ class AuthController {
 
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name });
- 
+
       if (college) {
         return res
           .status(404)
@@ -198,8 +200,8 @@ class AuthController {
     try {
       const { college_name, email, password, name, role } = req.body;
 
-    // Check if the college exists or create a new one
-    let college = await College.findOne({ college_name: college_name });
+      // Check if the college exists or create a new one
+      let college = await College.findOne({ college_name: college_name });
 
     if (!college) {
         return res.status(400).json({ success: false, message: "College not found" });
@@ -283,9 +285,11 @@ class AuthController {
         user.otp = -1;
         user.isEmailVerified = true;
         await user.save();
-        res
-          .status(200)
-          .json({ success: true, message: "OTP verified successfully", id: user._id });
+        res.status(200).json({
+          success: true,
+          message: "OTP verified successfully",
+          id: user._id,
+        });
       } else {
         res.status(400).json({ success: false, message: "Incorrect OTP" });
       }
@@ -549,7 +553,6 @@ class AuthController {
         .json({ success: false, message: "Internal server error" });
     }
   };
-
 }
 
 module.exports.AuthController = new AuthController();
