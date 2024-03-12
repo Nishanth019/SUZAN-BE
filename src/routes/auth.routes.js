@@ -28,7 +28,7 @@ router.post("/forgetpassword", AuthController.forgetPassword);
 router.post("/changepassword", AuthController.verifyOtpAndChangePassword);
 
 // Route for logout
-router.post("/logout", AuthController.logout);
+router.post("/signout", AuthController.signout);
 
 
 module.exports.AuthRouter = router;
