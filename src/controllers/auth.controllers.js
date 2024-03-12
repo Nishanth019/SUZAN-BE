@@ -531,7 +531,7 @@ class AuthController {
   };
 
 
-  logout = (req, res) => {
+  signout = (req, res) => {
     try {
       // Clear the cookie containing the authentication token
       res.clearCookie("token");
