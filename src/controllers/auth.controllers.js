@@ -538,8 +538,12 @@ class AuthController {
   signout = (req, res) => {
     try {
       // Clear the cookie containing the authentication token
-      res.clearCookie("token");
-
+      res.clearCookie("token", {
+        secure: true, // set to true if you're using https
+        httpOnly: true,
+        sameSite: "none",
+      });
+  
       // Optionally, you can send a response indicating successful logout
       res.status(200).json({ success: true, message: "Logout successful" });
     } catch (error) {
