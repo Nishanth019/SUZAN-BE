@@ -405,7 +405,7 @@ class AuthController {
         .status(200)
         .cookie("token", token, {
           expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          secure: true, // set to true if your using https`
+          secure: true, // set to true if your using https
           httpOnly: true,
           sameSite: "none",
         })
@@ -417,6 +417,47 @@ class AuthController {
         .json({ success: false, message: "Internal server error" });
     }
   };
+
+  // Resend OTP
+  resendOtp = async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+      // Find user by email
+      const user = await User.findOne({ email });
+  
+      if (!user) {
+        return res
+          .status(404)
+          .json({ success: false, message: "User not found" });
+      }
+  
+      // Generate new OTP
+      let otp = Math.floor(1000 + Math.random() * 9000); // Generate random 4-digit OTP
+  
+      // Save OTP to the user's record
+      user.otp = otp;
+      await user.save();
+  
+      // Send OTP to the user's email
+      await sendMail(
+        email,
+        "Suzan Verification OTP",
+        `Your resent verification OTP is ${otp}`
+      );
+  
+      res.status(200).json({
+        success: true,
+        message: "Verification OTP resent successfully",
+      });
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ success: false, message: "Internal server error" });
+    }
+  };
+  
 
   // Forget Password
   forgetPassword = async (req, res) => {
