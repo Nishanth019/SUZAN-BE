@@ -54,7 +54,7 @@ class UserController {
 
       res.status(200).json({
         success: true,
-        message: "User updated successfully",
+        message: "User Details updated successfully",
         user: updatedUser,
       });
     } catch (error) {
@@ -123,7 +123,7 @@ class UserController {
 
       res.status(200).json({
         success: true,
-        message: "User updated successfully",
+        message: "User Details updated successfully",
         user: updatedUser,
       });
     } catch (error) {
