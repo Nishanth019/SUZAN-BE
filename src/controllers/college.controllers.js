@@ -2,6 +2,21 @@ const { User } = require("../models/User.model.js");
 const { College } = require("../models/College.model.js");
 
 class CollegeController {
+
+    // Get all verified colleges
+    getAllVerifiedColleges = async (req, res) => {
+      try {
+        console.log(1);
+
+        const colleges = await College.find({ isVerified: true });
+        console.log(2);
+        res.status(200).json({ colleges: colleges, success: true });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error", success: false });
+      }
+    };
+
   // Get all colleges
   getAllColleges = async (req, res) => {
     try {

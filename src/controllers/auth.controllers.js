@@ -140,15 +140,16 @@ class AuthController {
           .status(404)
           .json({ success: false, message: "User not found" });
       }
-
+      console.log(1)
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name });
-
+      console.log(2)
       if (college) {
         return res
           .status(404)
           .json({ success: false, message: "College already exists" });
       }
+      console.log(3)
       if (!college) {
         college = new College({
           college_name: college_name,
@@ -161,7 +162,7 @@ class AuthController {
         });
         await college.save();
       }
-
+      console.log(4)
       user.name = name;
       user.phone = phone;
       user.gender = gender;
@@ -174,19 +175,26 @@ class AuthController {
       user.isUserVerified = true;
       // user.isAdminVerified = true;
       await user.save();
-
+      console.log(5)
       // Generate JWT token
-      const token = await sendToken(user);
-      console.log(token);
-      res
-        .status(200)
-        .cookie("token", token, {
-          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          secure: true, // set to true if your using https`
-          httpOnly: true,
-          sameSite: "none",
-        })
-        .json({ success: true, message: "Details updated successfully", user });
+      // const token = await sendToken(user);
+      // console.log(token);
+      // res
+      //   .status(200)
+      //   .cookie("token", token, {
+      //     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      //     secure: true, // set to true if your using https`
+      //     httpOnly: true,
+      //     sameSite: "none",
+      //   })
+      // .json({ success: true, message: "Details updated successfully", user });
+
+      res.status(200).json({
+        success: true,
+        message:
+          "We will reach out to you shortly.",
+      });
+      console.log(6)
     } catch (error) {
       console.error(error);
       res
@@ -203,17 +211,17 @@ class AuthController {
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name: college_name });
 
-    if (!college) {
+      if (!college) {
         return res.status(400).json({ success: false, message: "College not found" });
-    }
+      }
 
-    // Extract domain from college record
-    let email_domain = college.email_domain;
+      // Extract domain from college record
+      let email_domain = college.email_domain;
 
-    // Check if the entered email matches the college domain
-    if (email.split('@')[1] !== email_domain) {
+      // Check if the entered email matches the college domain
+      if (email.split('@')[1] !== email_domain) {
         return res.status(400).json({ success: false, message: "Please enter your college email" });
-    }
+      }
 
       // Check if email already exists
       const existingUser = await User.findOne({ email });
@@ -377,6 +385,16 @@ class AuthController {
         });
       }
 
+      // Compare passwords
+      const isPasswordMatch = await Hasher.compare(password, user.password);
+
+      if (!isPasswordMatch) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Incorrect password" });
+      }
+
+
       // Check if the user is an admin
       if (user.role === "admin") {
         // Check if admin account is verified
@@ -387,15 +405,6 @@ class AuthController {
               "Your account has not yet been verified by our team. Once verified, we will reach out to you shortly.",
           });
         }
-      }
-
-      // Compare passwords
-      const isPasswordMatch = await Hasher.compare(password, user.password);
-
-      if (!isPasswordMatch) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Incorrect password" });
       }
 
       // Password matches, generate token
@@ -422,30 +431,30 @@ class AuthController {
   resendOtp = async (req, res) => {
     try {
       const { email } = req.body;
-  
+
       // Find user by email
       const user = await User.findOne({ email });
-  
+
       if (!user) {
         return res
           .status(404)
           .json({ success: false, message: "User not found" });
       }
-  
+
       // Generate new OTP
       let otp = Math.floor(1000 + Math.random() * 9000); // Generate random 4-digit OTP
-  
+
       // Save OTP to the user's record
       user.otp = otp;
       await user.save();
-  
+
       // Send OTP to the user's email
       await sendMail(
         email,
         "Suzan Verification OTP",
         `Your resent verification OTP is ${otp}`
       );
-  
+
       res.status(200).json({
         success: true,
         message: "Verification OTP resent successfully",
@@ -457,7 +466,7 @@ class AuthController {
         .json({ success: false, message: "Internal server error" });
     }
   };
-  
+
 
   // Forget Password
   forgetPassword = async (req, res) => {
@@ -543,7 +552,7 @@ class AuthController {
         httpOnly: true,
         sameSite: "none",
       });
-  
+
       // Optionally, you can send a response indicating successful logout
       res.status(200).json({ success: true, message: "Logout successful" });
     } catch (error) {
