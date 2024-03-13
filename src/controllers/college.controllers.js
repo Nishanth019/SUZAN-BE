@@ -82,7 +82,7 @@ class CollegeController {
           .json({ error: "College not found", success: false });
       }
 
-      res.status(200).json({ college: updatedCollege, success: true });
+      res.status(200).json({ college: updatedCollege, success: true, message: "College Details updated successfully" });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
