@@ -16,7 +16,7 @@ const { CourseRouter } = require("../routes/course.routes.js");
 module.exports = (app) => {
 
   var corsOptions = {
-    origin:  [process.env.CLIENT_APP_URL, "https://suzan.vercel.app"], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
+    origin:  [process.env.CLIENT_APP_URL, "https://suzan.vercel.app", "http://localhost:3000"], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
     optionsSuccessStatus: 200,
   };
 
