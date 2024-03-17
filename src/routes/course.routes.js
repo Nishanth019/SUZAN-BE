@@ -77,4 +77,4 @@ router.get("/courses", CourseController.getAllCourses);
 // Get course by ID
 router.get("/courses/:courseId", CourseController.getCourseById);
 
-module.exports.College;
+module.exports.CourseRouter = router;
