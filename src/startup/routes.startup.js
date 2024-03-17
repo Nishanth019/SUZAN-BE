@@ -11,6 +11,7 @@ var session = require("express-session");
 const { UserRouter } = require("../routes/user.routes.js");
 const { CollegeRouter } = require("../routes/college.routes.js");
 const { AuthRouter } = require("../routes/auth.routes.js");
+const { CourseRouter } = require("../routes/course.routes.js");
 
 module.exports = (app) => {
 
@@ -48,6 +49,7 @@ module.exports = (app) => {
   app.use("/api/users", UserRouter);
   app.use("/api/colleges", CollegeRouter);
   app.use("/api/auth",AuthRouter);
+  app.use("/api/course",CourseRouter);
 
 
   //handling async errors in apis
