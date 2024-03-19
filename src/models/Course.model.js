@@ -81,7 +81,7 @@ const courseSchema = new Schema({
     type: Number,
     required: true,
   },
-  syllabus_pdf: {
+  syllabus: {
     type: String,
     required: true,
   },
