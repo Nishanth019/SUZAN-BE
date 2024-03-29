@@ -17,7 +17,7 @@ const programSchema = new Schema({
     field_of_study: {
         type: Schema.Types.ObjectId,
         ref: 'FieldOfStudy',
-        required: true
+        // required: true
     }
 });
 
