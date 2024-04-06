@@ -13,16 +13,18 @@ class CourseController {
   // Create program under a college
   createProgram = async (req, res) => {
     try {
-      const { program_name, program_fullname, no_of_semester } = req.body; // Extract program details from request body
+      const {   programName,
+        programFullName,
+        semestersCount,} = req.body; // Extract program details from request body
       // console.log(55,req.user)
       const collegeId = req.user.college; // Extract collegeId from req.user
 
       // Create the program
       const program = new Program({
-        program_name: program_name,
-        program_fullname: program_fullname,
+        program_name: programName,
+        program_fullname: programFullName,
         college: collegeId,
-        no_of_semester: no_of_semester,
+        no_of_semester: semestersCount,
       });
 
       await program.save();
@@ -228,11 +230,13 @@ class CourseController {
     try {
       const { programId } = req.body;
       const collegeId = req.user.college;
+      console.log(5234,programId,collegeId)
 
       const fieldsOfStudy = await FieldOfStudy.find({
         program: programId,
         college: collegeId,
       });
+      console.log(22,fieldsOfStudy)
       res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
     } catch (error) {
       console.error(error);
@@ -555,8 +559,25 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+    // Get all courses
+    getAllCourses = async (req, res) => {
+      try {
+        const { programId } = req.body;
+        const collegeId = req.user.college;
+        const courses = await Course.find({
+          program: programId,
+          college: collegeId,
+        });
+        res.status(200).json({ courses: courses, success: true });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error", success: false });
+      }
+    };
+
   // Get all courses
-  getAllCourses = async (req, res) => {
+  getAllSpecificCourses = async (req, res) => {
     try {
       const { programId, fieldOfStudyId, semesterId } = req.body;
       const collegeId = req.user.college;

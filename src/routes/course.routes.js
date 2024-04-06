@@ -84,6 +84,9 @@ router.delete("/courses/:courseId", CourseController.deleteCourse);
 // Get all courses
 router.get("/courses", Auth, CourseController.getAllCourses);
 
+// Get all courses2
+router.get("/specificcourses", Auth, CourseController.getAllSpecificCourses);
+
 // Get course by ID
 router.get("/courses/:courseId", CourseController.getCourseById);
 
