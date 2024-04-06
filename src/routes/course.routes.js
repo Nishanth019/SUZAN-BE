@@ -29,22 +29,22 @@ router.post(
 
 // Update field of study
 router.put(
-  "/field-of-studies/:fieldOfStudyId",
+  "/fieldOfStudy/:fieldOfStudyId",
   CourseController.updateFieldOfStudy
 );
 
 // Delete field of study
 router.delete(
-  "/field-of-studies/:fieldOfStudyId",
+  "/fieldOfStudy/:fieldOfStudyId",
   CourseController.deleteFieldOfStudy
 );
 
 // Get all fields of study
-router.get("/field-of-studies",Auth, CourseController.getAllFieldsOfStudy);
+router.get("/fieldOfStudy", Auth, CourseController.getAllFieldsOfStudy);
 
 // Get field of study by ID
 router.get(
-  "/field-of-studies/:fieldOfStudyId",
+  "/fieldOfStudy/:fieldOfStudyId",
   CourseController.getFieldOfStudyById
 );
 
@@ -71,7 +71,7 @@ router.get("/semesters/:semesterId", CourseController.getSemesterById);
 //COURSE
 
 // Create course under a semester
-router.post("/courses", CourseController.createCourse);
+router.post("/courses",Auth, CourseController.createCourse);
 
 // Update course
 router.put("/courses/:courseId", CourseController.updateCourse);

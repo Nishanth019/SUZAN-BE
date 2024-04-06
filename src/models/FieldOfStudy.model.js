@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 
 // Define Field of Study Schema
 const fieldOfStudySchema = new Schema({
-    field_of_study_name: {
+    field_of_studyname: {
         type: String,
         required: true,
         unique: true
