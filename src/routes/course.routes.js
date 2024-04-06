@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { CourseController } = require("../controllers/course.controllers.js");
 const { Auth } = require("../middlewares/auth.middlewares.js");
+const upload = require('../middlewares/file-upload.middlewares.js');
+
 
 // PROGRAMS
 // Create program under a college
@@ -84,5 +86,8 @@ router.get("/courses", Auth, CourseController.getAllCourses);
 
 // Get course by ID
 router.get("/courses/:courseId", CourseController.getCourseById);
+
+// upload  file
+router.post("/uploadfile", upload.single('file'), CourseController.uploadFile);
 
 module.exports.CourseRouter = router;

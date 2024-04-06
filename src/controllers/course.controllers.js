@@ -588,6 +588,18 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+      // Upload pdf file
+      uploadFile = async (req, res) => {
+        try {
+          const fileUrl = req.file.location; // Assuming Multer-S3 provides 'location' for the uploaded file
+          console.log(fileUrl);
+          res.status(200).json({ success: true, message: 'File uploaded successfully', fileUrl: fileUrl });
+        } catch (error) {
+          console.error(error);
+          res.status(500).json({ success: false, error: 'Internal Server Error' });
+        }
+      };
 }
 
 
