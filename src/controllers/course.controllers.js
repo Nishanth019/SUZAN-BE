@@ -10,26 +10,29 @@ class CourseController {
   // Create program under a college
   createProgram = async (req, res) => {
     try {
-      const { collegeId } = req.params; // Extract collegeId from request parameters
-      const { program_name, field_of_study } = req.body; // Extract program details from request body
-
-      // Check if the college exists
-      const college = await College.findById({ _id: collegeId });
-      if (!college) {
-        return res
-          .status(404)
-          .json({ error: "College not found", success: false });
-      }
-
+      const { program_name, program_fullname, no_of_semester } = req.body; // Extract program details from request body
+      const collegeId = req.user.college; // Extract collegeId from req.user
+  
       // Create the program
       const program = new Program({
         program_name: program_name,
+        program_fullname: program_fullname,
         college: collegeId,
-        field_of_study: field_of_study,
+        no_of_semester: no_of_semester,
       });
-
+  
       await program.save();
-
+  
+      // Create semesters
+      for (let i = 1; i <= no_of_semester; i++) {
+        const semester = new Semester({
+          semester: i,
+          program: program._id,
+          college: collegeId,
+        });
+        await semester.save();
+      }
+  
       res.status(201).json({
         program: program,
         success: true,
@@ -120,13 +123,13 @@ class CourseController {
 
 
 
-
   // Create field of study under a program
   createFieldOfStudy = async (req, res) => {
     try {
-      const { programId } = req.params; // Extract programId from request parameters
-      const { field_of_study_name, semester } = req.body; // Extract field of study details from request body
-
+     
+      const { field_of_studyname ,programId} = req.body; // Extract field of study details from request body
+      const collegeId = req.user.college; // Extract collegeId from req.user
+  
       // Check if the program exists
       const program = await Program.findById(programId);
       if (!program) {
@@ -134,18 +137,22 @@ class CourseController {
           .status(404)
           .json({ error: "Program not found", success: false });
       }
-
+  
       // Create the field of study
       const fieldOfStudy = new FieldOfStudy({
-        field_of_study_name: field_of_study_name,
+        field_of_studyname: field_of_studyname,
         program: programId,
-        college: program.college, // Associate with the college of the program
-        semester: semester,
+        college: collegeId,
       });
-
+  
       // Save the field of study
       await fieldOfStudy.save();
-
+  
+      // Connect semesters to the field of study
+      const semesters = await Semester.find({ program: programId, college: collegeId });
+      fieldOfStudy.semesters = semesters.map(semester => semester._id);
+      await fieldOfStudy.save();
+  
       res.status(201).json({
         fieldOfStudy: fieldOfStudy,
         success: true,
@@ -156,6 +163,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+  
   // Update field of study
   updateFieldOfStudy = async (req, res) => {
     try {
@@ -213,7 +221,10 @@ class CourseController {
   // Get all fields of study
   getAllFieldsOfStudy = async (req, res) => {
     try {
-      const fieldsOfStudy = await FieldOfStudy.find({});
+      const {program_id} = req.body;
+      const collegeId = req.user.college;
+
+      const fieldsOfStudy = await FieldOfStudy.find({program:program_id,college:collegeId});
       res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
     } catch (error) {
       console.error(error);
@@ -328,7 +339,10 @@ class CourseController {
   // Get all semesters
   getAllSemesters = async (req, res) => {
     try {
-      const semesters = await Semester.find({});
+      const {programId}  = req.body;
+      const {collegeId} = req.user.college;
+
+      const semesters = await Semester.find({program:programId, college:collegeId});
       res.status(200).json({ semesters: semesters, success: true });
     } catch (error) {
       console.error(error);
@@ -354,62 +368,129 @@ class CourseController {
 
 
 
-  // Create course under a semester
-  createCourse = async (req, res) => {
+createCourse = async (req, res) => {
+  try {
+    const {
+      program,
+      field_of_study,
+      semesterId,
+      course_name,
+      course_code,
+      instructor_name,
+      instructor_photo,
+      course_type,
+      credits,
+      syllabus,
+      resource_links,
+      resource_pdfs,
+      pyq_links,
+      pyq_pdfs
+    } = req.body;
+
+    const semester = await Semester.findById(semesterId);
+    if (!semester) {
+      return res.status(404).json({ error: "Semester not found", success: false });
+    }
+
+    // Create PDFs for syllabus, PYQs, and notes
+    const syllabusPdf = await createPdf(syllabus);
+    const pyqPdfs = await createMultiplePdfs(pyq_pdfs);
+
+    // Create links for resource links, PYQs links, and notes links
+    const resourceLinkDocuments = await createLinks(resource_links);
+    const pyqLinkDocuments = await createLinks(pyq_links);
+
+    // Create PDFs for resource PDFs
+    const resourcePdfDocuments = await createMultiplePdfs(resource_pdfs);
+
+    // Create the course
+    const course = new Course({
+      course_name,
+      semester: semesterId,
+      field_of_study,
+      program,
+      college: semester.college,
+      course_code,
+      instructor_name,
+      instructor_photo,
+      course_type,
+      credits,
+      syllabus_pdf: syllabusPdf._id,
+      resources_pdf: resourcePdfDocuments.map(pdf => pdf._id),
+      resources_links: resourceLinkDocuments.map(link => link._id),
+      pyq_pdf: pyqPdfs.map(pdf => pdf._id),
+      pyq_links: pyqLinkDocuments.map(link => link._id)
+    });
+
+    await course.save();
+
+    res.status(201).json({
+      course: course,
+      success: true,
+      message: "Course created successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error", success: false });
+  }
+};
+  // Helper function to create a single PDF
+  async createPdf(pdfData) {
     try {
-      const { semesterId } = req.params; // Extract semesterId from request parameters
-      const {
-        course_name,
-        course_code,
-        instructor_name,
-        instructor_photo,
-        course_type,
-        credits,
-        syllabus_pdf,
-        resources,
-        pyq,
-        notes,
-      } = req.body; // Extract course details from request body
-
-      // Check if the semester exists
-      const semester = await Semester.findById(semesterId);
-      if (!semester) {
-        return res
-          .status(404)
-          .json({ error: "Semester not found", success: false });
-      }
-
-      // Create the course
-      const course = new Course({
-        course_name: course_name,
-        semester: semesterId,
-        field_of_study: semester.field_of_study,
-        program: semester.program,
-        college: semester.college,
-        course_code: course_code,
-        instructor_name: instructor_name,
-        instructor_photo: instructor_photo,
-        course_type: course_type,
-        credits: credits,
-        syllabus_pdf: syllabus_pdf,
-        resources: resources,
-        pyq: pyq,
-        notes: notes,
+      const { pdf_name, pdf_url } = pdfData;
+      const pdf = new Pdf({
+        pdf_name,
+        pdf_url,
       });
-
-      // Save the course
-      await course.save();
-
-      res.status(201).json({
-        course: course,
-        success: true,
-        message: "Course created successfully",
-      });
+      return await pdf.save();
     } catch (error) {
       console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
+      throw new Error("Failed to create PDF");
     }
-  };
+  }
+
+  // Helper function to create multiple PDFs
+  async createMultiplePdfs(pdfDataArray) {
+    try {
+      const pdfs = await Promise.all(
+        pdfDataArray.map(async (pdfData) => await this.createPdf(pdfData))
+      );
+      return pdfs;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to create multiple PDFs");
+    }
+  }
+
+  // Helper function to create a single link
+  async createLink(linkData) {
+    try {
+      const { link_name, link_url } = linkData;
+      const link = new Link({
+        link_name,
+        link_url,
+      });
+      return await link.save();
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to create link");
+    }
+  }
+
+  // Helper function to create multiple links
+  async createLinks(linkDataArray) {
+    try {
+      const links = await Promise.all(
+        linkDataArray.map(async (linkData) => await this.createLink(linkData))
+      );
+      return links;
+    } catch (error) {
+      console.error(error);
+      throw new Error("Failed to create multiple links");
+    }
+  }
+
+
   // Update course
   updateCourse = async (req, res) => {
     try {
@@ -466,7 +547,9 @@ class CourseController {
   // Get all courses
   getAllCourses = async (req, res) => {
     try {
-      const courses = await Course.find({});
+      const {programId , fieldOfStudyId, semesterId} = req.body;
+      const collegeId = req.user.college;
+      const courses = await Course.find({program:programId, field_of_study:fieldOfStudyId , semester:semesterId, college:collegeId});
       res.status(200).json({ courses: courses, success: true });
     } catch (error) {
       console.error(error);

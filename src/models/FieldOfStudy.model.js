@@ -19,10 +19,10 @@ const fieldOfStudySchema = new Schema({
         ref: 'College',
         required: true
     },
-    semester: {
+    semester: [{
         type: Schema.Types.ObjectId,
         ref: 'Semester'
-    }
+    }]
 });
 
 exports.FieldOfStudy= mongoose.model("FieldOfStudy", fieldOfStudySchema );
