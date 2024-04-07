@@ -13,9 +13,7 @@ class CourseController {
   // Create program under a college
   createProgram = async (req, res) => {
     try {
-      const {   programName,
-        programFullName,
-        semestersCount,} = req.body; // Extract program details from request body
+      const { programName, programFullName, semestersCount } = req.body; // Extract program details from request body
       // console.log(55,req.user)
       const collegeId = req.user.college; // Extract collegeId from req.user
 
@@ -228,15 +226,16 @@ class CourseController {
   // Get all fields of study
   getAllFieldsOfStudy = async (req, res) => {
     try {
-      const { programId } = req.body;
+      console.log(req.params.id);
+      const programId = req.params.id;
       const collegeId = req.user.college;
-      console.log(5234,programId,collegeId)
+      console.log(5234, programId, collegeId);
 
       const fieldsOfStudy = await FieldOfStudy.find({
         program: programId,
         college: collegeId,
       });
-      console.log(22,fieldsOfStudy)
+      console.log(22, fieldsOfStudy);
       res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
     } catch (error) {
       console.error(error);
@@ -247,18 +246,23 @@ class CourseController {
   getFieldOfStudyById = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params;
-      const fieldOfStudy = await FieldOfStudy.findById(fieldOfStudyId);
+      console.log(1, fieldOfStudyId);
+      const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
+      console.log(2, fieldOfStudy);
       if (!fieldOfStudy) {
         return res
           .status(404)
           .json({ error: "Field of study not found", success: false });
       }
+      console.log(3);
       res.status(200).json({ fieldOfStudy: fieldOfStudy, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+  
 
   // Create semester under a field of study
   createSemester = async (req, res) => {
@@ -560,21 +564,21 @@ class CourseController {
     }
   };
 
-    // Get all courses
-    getAllCourses = async (req, res) => {
-      try {
-        const { programId } = req.body;
-        const collegeId = req.user.college;
-        const courses = await Course.find({
-          program: programId,
-          college: collegeId,
-        });
-        res.status(200).json({ courses: courses, success: true });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Internal Server Error", success: false });
-      }
-    };
+  // Get all courses
+  getAllCourses = async (req, res) => {
+    try {
+      const { programId } = req.body;
+      const collegeId = req.user.college;
+      const courses = await Course.find({
+        program: programId,
+        college: collegeId,
+      });
+      res.status(200).json({ courses: courses, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
 
   // Get all courses
   getAllSpecificCourses = async (req, res) => {
@@ -610,20 +614,22 @@ class CourseController {
     }
   };
 
-      // Upload pdf file
-      uploadFile = async (req, res) => {
-        try {
-          const fileUrl = req.file.location; // Assuming Multer-S3 provides 'location' for the uploaded file
-          console.log(fileUrl);
-          res.status(200).json({ success: true, message: 'File uploaded successfully', fileUrl: fileUrl });
-        } catch (error) {
-          console.error(error);
-          res.status(500).json({ success: false, error: 'Internal Server Error' });
-        }
-      };
+  // Upload pdf file
+  uploadFile = async (req, res) => {
+    try {
+      const fileUrl = req.file.location; // Assuming Multer-S3 provides 'location' for the uploaded file
+      console.log(fileUrl);
+      res.status(200).json({
+        success: true,
+        message: "File uploaded successfully",
+        fileUrl: fileUrl,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  };
 }
-
-
 
 // Export an instance of CourseController
 module.exports.CourseController = new CourseController();
