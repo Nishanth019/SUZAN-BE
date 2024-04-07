@@ -2,8 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { CourseController } = require("../controllers/course.controllers.js");
 const { Auth } = require("../middlewares/auth.middlewares.js");
-const upload = require('../middlewares/file-upload.middlewares.js');
-
+const upload = require("../middlewares/file-upload.middlewares.js");
 
 // PROGRAMS
 // Create program under a college
@@ -21,13 +20,9 @@ router.get("/programs", Auth, CourseController.getAllPrograms);
 // Get program by ID
 router.get("/programs/:programId", CourseController.getProgramById);
 
-
 //FIELD OF STUDY
 // Create field of study under a program
-router.post(
-  "/fieldOfStudy",
-  Auth,CourseController.createFieldOfStudy
-);
+router.post("/fieldOfStudy", Auth, CourseController.createFieldOfStudy);
 
 // Update field of study
 router.put(
@@ -42,11 +37,11 @@ router.delete(
 );
 
 // Get all fields of study
-router.get("/fieldOfStudy", Auth, CourseController.getAllFieldsOfStudy);
+router.get("/fieldOfStudy/:id", Auth, CourseController.getAllFieldsOfStudy);
 
 // Get field of study by ID
 router.get(
-  "/fieldOfStudy/:fieldOfStudyId",
+  "/fieldOfStudyById/:fieldOfStudyId",
   CourseController.getFieldOfStudyById
 );
 
@@ -68,12 +63,10 @@ router.get("/semesters", Auth, CourseController.getAllSemesters);
 // Get semester by ID
 router.get("/semesters/:semesterId", CourseController.getSemesterById);
 
-
-
 //COURSE
 
 // Create course under a semester
-router.post("/courses",Auth, CourseController.createCourse);
+router.post("/courses", Auth, CourseController.createCourse);
 
 // Update course
 router.put("/courses/:courseId", CourseController.updateCourse);
@@ -91,6 +84,6 @@ router.get("/specificcourses", Auth, CourseController.getAllSpecificCourses);
 router.get("/courses/:courseId", CourseController.getCourseById);
 
 // upload  file
-router.post("/uploadfile", upload.single('file'), CourseController.uploadFile);
+router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
 
 module.exports.CourseRouter = router;
