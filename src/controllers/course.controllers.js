@@ -30,7 +30,7 @@ class CourseController {
       await program.save();
 
       // Create semesters
-      for (let i = 1; i <= no_of_semester; i++) {
+      for (let i = 1; i <= semestersCount; i++) {
         const semester = new Semester({
           semester: i,
           program: program._id,

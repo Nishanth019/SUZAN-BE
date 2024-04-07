@@ -27,7 +27,7 @@ const programSchema = new Schema({
     no_of_semester: {
         type: Number,
         required: true,
-        unique: true
+        // unique: true
     }
 });
 
