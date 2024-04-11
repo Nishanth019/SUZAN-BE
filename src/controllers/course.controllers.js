@@ -47,6 +47,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
   // Update program
   updateProgram = async (req, res) => {
     try {
@@ -584,6 +585,7 @@ class CourseController {
   getAllSpecificCourses = async (req, res) => {
     try {
       const { programId, fieldOfStudyId, semesterId } = req.body;
+      console.log(programId, fieldOfStudyId, semesterId )
       const collegeId = req.user.college;
       const courses = await Course.find({
         program: programId,
@@ -597,6 +599,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
   // Get course by ID
   getCourseById = async (req, res) => {
     try {
