@@ -34,7 +34,6 @@ const commentSchema = new Schema(
   },
   { timestamps: true }
 );
-
 // Define Course Schema
 const courseSchema = new Schema({
   course_name: {
@@ -82,27 +81,34 @@ const courseSchema = new Schema({
     required: true,
   },
   syllabus_pdf: {
-    type: String,
-    required: true,
+    type: Schema.Types.ObjectId,
+    ref: 'pdf',
+    // required: true
   },
-  resources: [
+  resources_pdf: [
     {
-      type: String,
-      required: true,
-    },
-  ], // Array of resource links
-  pyq: [
+      type: Schema.Types.ObjectId,
+      ref: 'pdf',
+    }
+  ], // Array of PDF resources
+  resources_links: [
     {
-      type: String,
-      required: true,
-    },
+      type: Schema.Types.ObjectId,
+      ref: 'link',
+    }
+  ], // Array of link resources
+  pyq_pdf: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'pdf',
+    }
   ], // Array of PDFs for Previous Year Questions
-  notes: [
+  pyq_links: [
     {
-      type: String,
-      required: true,
-    },
-  ], // Array of notes
+      type: Schema.Types.ObjectId,
+      ref: 'link',
+    }
+  ], // Array of link resources for Previous Year Questions
   comments: [commentSchema], // Array of comments
 });
 
