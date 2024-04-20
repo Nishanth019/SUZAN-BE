@@ -9,6 +9,11 @@ const fieldOfStudySchema = new Schema({
         required: true,
         unique: true
     },
+    field_of_studyfullname: {
+        type: String,
+        required: true,
+        unique: true
+    },
     program: {
         type: Schema.Types.ObjectId,
         ref: 'Program',

@@ -17,6 +17,10 @@ class CourseController {
       // console.log(55,req.user)
       const collegeId = req.user.college; // Extract collegeId from req.user
 
+      if (!programName || !programFullName || !semestersCount) {
+        return res.status(400).json({ error: "Missing required fields", success: false });
+      }
+
       // Create the program
       const program = new Program({
         program_name: programName,
@@ -127,10 +131,34 @@ class CourseController {
     }
   };
 
+  async searchProgram(req, res) {
+    try {
+      const { searchTerm } = req.query;
+      const collegeId = req.user.college;
+
+      if (!searchTerm) {
+        return res.status(400).json({ error: "Search term is required", success: false });
+      }
+
+      const programs = await Program.find({
+        college: collegeId,
+        $or: [
+          { program_name: { $regex: searchTerm, $options: "i" } },
+          { program_fullname: { $regex: searchTerm, $options: "i" } }
+        ]
+      });
+
+      res.status(200).json({ programs: programs, success: true });
+    } catch (error) {
+      console.error("Search Program Error:", error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  }
+
   // Create field of study under a program
   createFieldOfStudy = async (req, res) => {
     try {
-      const { field_of_studyname, programId } = req.body; // Extract field of study details from request body
+      const { field_of_studyname, field_of_studyfullname, programId } = req.body; // Extract field of study details from request body
       const collegeId = req.user.college; // Extract collegeId from req.user
 
       // Check if the program exists
@@ -144,6 +172,7 @@ class CourseController {
       // Create the field of study
       const fieldOfStudy = new FieldOfStudy({
         field_of_studyname: field_of_studyname,
+        field_of_studyfullname:field_of_studyfullname,
         program: programId,
         college: collegeId,
       });
@@ -263,127 +292,6 @@ class CourseController {
     }
   };
 
-  
-
-  // Create semester under a field of study
-  createSemester = async (req, res) => {
-    try {
-      const { fieldOfStudyId } = req.params; // Extract fieldOfStudyId from request parameters
-      const { semesterNumber } = req.body; // Extract semester number from request body
-
-      // Check if the field of study exists
-      const fieldOfStudy = await FieldOfStudy.findById(fieldOfStudyId);
-      if (!fieldOfStudy) {
-        return res
-          .status(404)
-          .json({ error: "Field of study not found", success: false });
-      }
-
-      // Create the semester
-      const semester = new Semester({
-        semester: semesterNumber,
-        field_of_study: fieldOfStudyId,
-        program: fieldOfStudy.program, // Associate with the program of the field of study
-        college: fieldOfStudy.college, // Associate with the college of the field of study
-      });
-
-      // Save the semester
-      await semester.save();
-
-      res.status(201).json({
-        semester: semester,
-        success: true,
-        message: "Semester created successfully",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-  // Update semester
-  updateSemester = async (req, res) => {
-    try {
-      const { semesterId } = req.params; // Extract semesterId from request parameters
-      const updateData = req.body; // Extract update data from request body
-
-      // Update the semester
-      const updatedSemester = await Semester.findByIdAndUpdate(
-        semesterId,
-        updateData,
-        { new: true }
-      );
-
-      if (!updatedSemester) {
-        return res
-          .status(404)
-          .json({ error: "Semester not found", success: false });
-      }
-
-      res.status(200).json({
-        semester: updatedSemester,
-        success: true,
-        message: "Semester updated successfully",
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-  // Delete semester
-  deleteSemester = async (req, res) => {
-    try {
-      const { semesterId } = req.params; // Extract semesterId from request parameters
-
-      // Delete the semester
-      const deletedSemester = await Semester.findByIdAndDelete(semesterId);
-
-      if (!deletedSemester) {
-        return res
-          .status(404)
-          .json({ error: "Semester not found", success: false });
-      }
-
-      res
-        .status(200)
-        .json({ message: "Semester deleted successfully", success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-  // Get all semesters
-  getAllSemesters = async (req, res) => {
-    try {
-      const { programId } = req.body;
-      const { collegeId } = req.user.college;
-
-      const semesters = await Semester.find({
-        program: programId,
-        college: collegeId,
-      });
-      res.status(200).json({ semesters: semesters, success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-  // Get semester by ID
-  getSemesterById = async (req, res) => {
-    try {
-      const { semesterId } = req.params;
-      const semester = await Semester.findById(semesterId);
-      if (!semester) {
-        return res
-          .status(404)
-          .json({ error: "Semester not found", success: false });
-      }
-      res.status(200).json({ semester: semester, success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-
   // Helper function to create a single PDF
   async createPdf(pdfData) {
     try {
@@ -449,7 +357,7 @@ class CourseController {
       const {
         program,
         field_of_study,
-        semesterId,
+        semester,
         course_name,
         course_code,
         instructor_name,
@@ -463,31 +371,26 @@ class CourseController {
         pyq_pdfs,
       } = req.body;
 
-      const semester = await Semester.findById(semesterId);
-      if (!semester) {
-        return res
-          .status(404)
-          .json({ error: "Semester not found", success: false });
-      }
+      const collegeId = req.user.college; // Extract collegeId from req.user
 
-      // Create PDFs for syllabus, PYQs, and notes
+      // Create PDFs for syllabus
       const syllabusPdf = await this.createPdf(syllabus);
-      const pyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
 
-      // Create links for resource links, PYQs links, and notes links
+      // Create links for resource links, PYQs links
       const resourceLinkDocuments = await this.createLinks(resource_links);
       const pyqLinkDocuments = await this.createLinks(pyq_links);
 
-      // Create PDFs for resource PDFs
+      // Create PDFs for resource & pyqs PDFs
       const resourcePdfDocuments = await this.createMultiplePdfs(resource_pdfs);
+      const pyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
 
       // Create the course
       const course = new Course({
         course_name,
-        semester: semesterId,
+        semester,
         field_of_study,
         program,
-        college: semester.college,
+        college: collegeId,
         course_code,
         instructor_name,
         instructor_photo,
@@ -581,8 +484,26 @@ class CourseController {
     }
   };
 
-  // Get all courses
-  getAllSpecificCourses = async (req, res) => {
+    // Get all specific courses1
+    getAllSpecificCourses1 = async (req, res) => {
+      try {
+        const { programId, fieldOfStudyId} = req.body;
+        console.log(programId, fieldOfStudyId)
+        const collegeId = req.user.college;
+        const courses = await Course.find({
+          program: programId,
+          field_of_study: fieldOfStudyId,
+          college: collegeId,
+        });
+        res.status(200).json({ courses: courses, success: true });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error", success: false });
+      }
+    };
+
+  // Get all specific courses2
+  getAllSpecificCourses2 = async (req, res) => {
     try {
       const { programId, fieldOfStudyId, semesterId } = req.body;
       console.log(programId, fieldOfStudyId, semesterId )
@@ -599,6 +520,43 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+  async searchCourses(req, res) {
+    try {
+      let { programId, fieldOfStudyId, semesterId } = req.body;
+      const collegeId = req.user.college;
+      const { searchTerm } = req.query; // Extract searchTerm from query parameters
+
+      // Construct base query object with collegeId
+      const baseQuery = { college: collegeId };
+
+      // If searchTerm exists, add it to the query using $or operator
+      if (searchTerm) {
+        baseQuery.$or = [{ course_name: { $regex: searchTerm, $options: "i" } }];
+      }
+
+      // Add programId, fieldOfStudyId, and semesterId to the query if provided
+      if (programId && fieldOfStudyId && semesterId) {
+        baseQuery.program = programId;
+        baseQuery.field_of_study = fieldOfStudyId;
+        baseQuery.semester = semesterId;
+      } else if (programId && fieldOfStudyId) {
+        baseQuery.program = programId;
+        baseQuery.field_of_study = fieldOfStudyId;
+      } else if (programId) {
+        baseQuery.program = programId;
+      }
+
+      // Perform the course search using the constructed query
+      const courses = await Course.find(baseQuery);
+
+      // Return the courses found
+      return res.status(200).json({ courses: courses, success: true });
+    } catch (error) {
+      console.error("Search Courses Error:", error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  }
 
   // Get course by ID
   getCourseById = async (req, res) => {
