@@ -131,6 +131,27 @@ class UserController {
       res.status(500).json({ success: false, error: "Internal Server Error" });
     }
   };
+
+    // Upload user picture
+    uploadPicture = async (req, res) => {
+      try {
+        console.log(1, req.file, req.user.id);
+        const { id } = req.user;
+        const imageUrl = req.file.location; // Assuming Multer-S3 provides 'location' for the uploaded file
+
+        
+        const updatedUser = await User.findByIdAndUpdate(id, { picture: imageUrl }, { new: true });
+  
+        if (!updatedUser) {
+          return res.status(404).json({ success: false, message: 'User not found' });
+        }
+  
+        res.status(200).json({ success: true, message: 'User picture uploaded successfully', user: updatedUser });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
+      }
+    };
 }
 
 module.exports.UserController = new UserController();

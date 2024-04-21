@@ -17,7 +17,8 @@ const {JWT_SECRET} = process.env;
 module.exports.Auth = async (req, res, next) => {
     try {
       // Extract the token from the cookie
-      console.log(1,req.cookies);
+      console.log(1,req.cookies,);
+      console.log(2,req.body,req.files)
       const token = req.cookies.token;
       console.log(1,token);
       if (!token) {

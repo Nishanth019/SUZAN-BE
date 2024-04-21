@@ -7,11 +7,11 @@ const semesterSchema = new Schema({
         type: Number,
         required: true
     },
-    field_of_study: {
-        type: Schema.Types.ObjectId,
-        ref: 'FieldOfStudy',
-        required: true
-    },
+    // field_of_study: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'FieldOfStudy',
+    //     required: true
+    // },
     program: {
         type: Schema.Types.ObjectId,
         ref: 'Program',
@@ -22,10 +22,10 @@ const semesterSchema = new Schema({
         ref: 'College',
         required: true
     },
-    course: {
-        type: Schema.Types.ObjectId,
-        ref: 'Course'
-    }
+    // course: {
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Course'
+    // }
 });
 
 exports.Semester = mongoose.model("Semester", semesterSchema);

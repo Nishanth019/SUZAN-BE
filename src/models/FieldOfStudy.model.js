@@ -4,7 +4,12 @@ const Schema = mongoose.Schema;
 
 // Define Field of Study Schema
 const fieldOfStudySchema = new Schema({
-    field_of_study_name: {
+    field_of_studyname: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    field_of_studyfullname: {
         type: String,
         required: true,
         unique: true
@@ -19,10 +24,10 @@ const fieldOfStudySchema = new Schema({
         ref: 'College',
         required: true
     },
-    semester: {
+    semester: [{
         type: Schema.Types.ObjectId,
         ref: 'Semester'
-    }
+    }]
 });
 
 exports.FieldOfStudy= mongoose.model("FieldOfStudy", fieldOfStudySchema );

@@ -9,6 +9,11 @@ const programSchema = new Schema({
         required: true,
         unique: true
     },
+    program_fullname: {
+        type: String,
+        required: true,
+        unique: true
+    },
     college: {
         type: Schema.Types.ObjectId,
         ref: 'College',
@@ -17,7 +22,12 @@ const programSchema = new Schema({
     field_of_study: {
         type: Schema.Types.ObjectId,
         ref: 'FieldOfStudy',
-        required: true
+        // required: true
+    },
+    no_of_semester: {
+        type: Number,
+        required: true,
+        // unique: true
     }
 });
 

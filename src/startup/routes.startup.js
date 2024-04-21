@@ -6,16 +6,19 @@ const cors = require("cors"); // handling cors errors
 const cookieParser = require("cookie-parser"); // handling cookies
 var session = require("express-session");
 
-
 //Routers
 const { UserRouter } = require("../routes/user.routes.js");
 const { CollegeRouter } = require("../routes/college.routes.js");
 const { AuthRouter } = require("../routes/auth.routes.js");
+const { CourseRouter } = require("../routes/course.routes.js");
 
 module.exports = (app) => {
-
   var corsOptions = {
-    origin:  [process.env.CLIENT_APP_URL, "https://suzan.vercel.app", "http://localhost:3000"], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
+    origin: [
+      process.env.CLIENT_APP_URL,
+      "https://suzan.vercel.app",
+      "http://localhost:3000",
+    ], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
     optionsSuccessStatus: 200,
   };
 
@@ -25,7 +28,10 @@ module.exports = (app) => {
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept"
     );
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
     res.header("Access-Control-Allow-Credentials", "true");
     next();
   });
@@ -47,11 +53,11 @@ module.exports = (app) => {
   //start of routes
   app.use("/api/users", UserRouter);
   app.use("/api/colleges", CollegeRouter);
-  app.use("/api/auth",AuthRouter);
-
+  app.use("/api/auth", AuthRouter);
+  app.use("/api/course", CourseRouter);
 
   //handling async errors in apis
-//   app.use(ErrorHandler);
+  //   app.use(ErrorHandler);
 
   //adding additional apis
   app.get("/", (req, res) =>
