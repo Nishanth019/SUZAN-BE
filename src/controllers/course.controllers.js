@@ -18,7 +18,9 @@ class CourseController {
       const collegeId = req.user.college; // Extract collegeId from req.user
 
       if (!programName || !programFullName || !semestersCount) {
-        return res.status(400).json({ error: "Missing required fields", success: false });
+        return res
+          .status(400)
+          .json({ error: "Missing required fields", success: false });
       }
 
       // Create the program
@@ -55,13 +57,24 @@ class CourseController {
   // Update program
   updateProgram = async (req, res) => {
     try {
-      const { programId } = req.params; // Extract programId from request parameters
-      const updateData = req.body; // Extract update data from request body
+      const { programId, programName, programFullName, semestersCount } =
+        req.body; // Extract update data from request body
+
+      // Check if any of the fields are undefined
+      if (!programId || !programName || !programFullName || !semestersCount) {
+        return res
+          .status(400)
+          .json({ error: "Please provide all necessary data", success: false });
+      }
 
       // Update the program
       const updatedProgram = await Program.findByIdAndUpdate(
         programId,
-        updateData,
+        {
+          program_name: programName,
+          program_fullname: programFullName,
+          no_of_semester: semestersCount,
+        },
         { new: true }
       );
 
@@ -80,12 +93,13 @@ class CourseController {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
-  };
+  };    
+
   // Delete program
   deleteProgram = async (req, res) => {
     try {
       const { programId } = req.params; // Extract programId from request parameters
-
+      console.log(100,req.body)
       // Delete the program
       const deletedProgram = await Program.findByIdAndDelete(programId);
 
@@ -137,15 +151,17 @@ class CourseController {
       const collegeId = req.user.college;
 
       if (!searchTerm) {
-        return res.status(400).json({ error: "Search term is required", success: false });
+        return res
+          .status(400)
+          .json({ error: "Search term is required", success: false });
       }
 
       const programs = await Program.find({
         college: collegeId,
         $or: [
           { program_name: { $regex: searchTerm, $options: "i" } },
-          { program_fullname: { $regex: searchTerm, $options: "i" } }
-        ]
+          { program_fullname: { $regex: searchTerm, $options: "i" } },
+        ],
       });
 
       res.status(200).json({ programs: programs, success: true });
@@ -158,7 +174,8 @@ class CourseController {
   // Create field of study under a program
   createFieldOfStudy = async (req, res) => {
     try {
-      const { field_of_studyname, field_of_studyfullname, programId } = req.body; // Extract field of study details from request body
+      const { field_of_studyname, field_of_studyfullname, programId } =
+        req.body; // Extract field of study details from request body
       const collegeId = req.user.college; // Extract collegeId from req.user
 
       // Check if the program exists
@@ -172,7 +189,7 @@ class CourseController {
       // Create the field of study
       const fieldOfStudy = new FieldOfStudy({
         field_of_studyname: field_of_studyname,
-        field_of_studyfullname:field_of_studyfullname,
+        field_of_studyfullname: field_of_studyfullname,
         program: programId,
         college: collegeId,
       });
@@ -529,7 +546,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
-
+  
   async searchCourses(req, res) {
     try {
       let { programId, fieldOfStudyId, semesterId } = req.body;
@@ -541,7 +558,9 @@ class CourseController {
 
       // If searchTerm exists, add it to the query using $or operator
       if (searchTerm) {
-        baseQuery.$or = [{ course_name: { $regex: searchTerm, $options: "i" } }];
+        baseQuery.$or = [
+          { course_name: { $regex: searchTerm, $options: "i" } },
+        ];
       }
 
       // Add programId, fieldOfStudyId, and semesterId to the query if provided
