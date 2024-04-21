@@ -292,6 +292,35 @@ class CourseController {
     }
   };
 
+  getAllSemestersByFieldOfStudy = async (req, res) => {
+    try {
+        const { fieldOfStudyId } = req.params;
+        
+        // Find the field of study by its ID
+        const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
+
+        // If field of study is not found, return an error response
+        if (!fieldOfStudy) {
+            return res.status(404).json({ error: 'Field of study not found' });
+        }
+
+        // Extract semester ids from the field of study
+        const semesterIds = fieldOfStudy.semester;
+
+        // Fetch each semester by its id
+        const semesters = await Promise.all(semesterIds.map(async (semesterId) => {
+            const semester = await Semester.findById(semesterId);
+            return semester;
+        }));
+
+        // Return the fetched semesters
+        res.status(200).json({semesters:semesters, success: true });
+    } catch (error) {
+        console.error('Error in getAllSemestersByFieldOfStudy:', error);
+        res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+};
+
   // Helper function to create a single PDF
   async createPdf(pdfData) {
     try {
@@ -469,51 +498,31 @@ class CourseController {
   };
 
   // Get all courses
-  getAllCourses = async (req, res) => {
+  getCourses = async (req, res) => {
     try {
-      const { programId } = req.body;
-      const collegeId = req.user.college;
-      const courses = await Course.find({
-        program: programId,
-        college: collegeId,
-      });
-      res.status(200).json({ courses: courses, success: true });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: "Internal Server Error", success: false });
-    }
-  };
-
-    // Get all specific courses1
-    getAllSpecificCourses1 = async (req, res) => {
-      try {
-        const { programId, fieldOfStudyId} = req.body;
-        console.log(programId, fieldOfStudyId)
-        const collegeId = req.user.college;
-        const courses = await Course.find({
-          program: programId,
-          field_of_study: fieldOfStudyId,
-          college: collegeId,
-        });
-        res.status(200).json({ courses: courses, success: true });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: "Internal Server Error", success: false });
-      }
-    };
-
-  // Get all specific courses2
-  getAllSpecificCourses2 = async (req, res) => {
-    try {
+      console.log(23456789034567)
       const { programId, fieldOfStudyId, semesterId } = req.body;
-      console.log(programId, fieldOfStudyId, semesterId )
+      console.log(123,programId, fieldOfStudyId, semesterId)
+      
+      console.log(23456789034567)
       const collegeId = req.user.college;
-      const courses = await Course.find({
-        program: programId,
-        field_of_study: fieldOfStudyId,
-        semester: semesterId,
-        college: collegeId,
-      });
+  
+      let query = { college: collegeId };
+      
+      if (programId) {
+        query.program = programId;
+      }
+  
+      if (fieldOfStudyId) {
+        query.field_of_study = fieldOfStudyId;
+      }
+  
+      if (semesterId) {
+        query.semester = semesterId;
+      }
+  
+      const courses = await Course.find(query);
+  
       res.status(200).json({ courses: courses, success: true });
     } catch (error) {
       console.error(error);
