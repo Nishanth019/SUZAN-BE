@@ -41,6 +41,10 @@ router.get(
   CourseController.getFieldOfStudyById
 );
 
+//SEMESTERS
+// Get all semesters by fieldOfStudy
+router.get("/semester/:fieldOfStudyId", Auth, CourseController.getAllSemestersByFieldOfStudy);
+
 //COURSE
 // Create course under a semester
 router.post("/courses", Auth, CourseController.createCourse);
@@ -49,14 +53,12 @@ router.put("/courses/:courseId", CourseController.updateCourse);
 // Delete course
 router.delete("/courses/:courseId", CourseController.deleteCourse);
 // Get all courses
-router.get("/courses", Auth, CourseController.getAllCourses);
-// Get all courses by program, field of study
-router.get("/specificcourses1", Auth, CourseController.getAllSpecificCourses1);
-// Get all courses by program, field of study & semester
-router.get("/specificcourses2", Auth, CourseController.getAllSpecificCourses2);
-
+router.post("/getcourses", Auth, CourseController.getCourses);
 // Get course by ID
 router.get("/courses/:courseId", CourseController.getCourseById);
+// Search and get course by name
+router.post("/courses/search", Auth, CourseController.searchCourses);
+// GET /api/courses/search?searchTerm=<search_term>
 
 // upload  file
 router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
