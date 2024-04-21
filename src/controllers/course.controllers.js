@@ -107,7 +107,9 @@ class CourseController {
   getAllPrograms = async (req, res) => {
     try {
       const collegeId = req.user.college; // Extract collegeId from req.user
+      console.log(121, collegeId);
       const programs = await Program.find({ college: collegeId });
+      console.log("asd",programs)
       res.status(200).json({ programs: programs, success: true });
     } catch (error) {
       console.error(error);
