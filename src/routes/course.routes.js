@@ -16,8 +16,9 @@ router.get("/programs", Auth, CourseController.getAllPrograms);
 // Get program by ID
 router.get("/programs/:programId", CourseController.getProgramById);
 // Search and get program by name
-router.get("/programs/search", Auth, CourseController.searchProgram);
+router.post("/programs/search", Auth, CourseController.searchProgram);
 // GET /api/programs/search?searchTerm=<search_term>
+
 
 
 //FIELD OF STUDY

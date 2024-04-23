@@ -151,20 +151,15 @@ class CourseController {
     try {
       const { searchTerm } = req.query;
       const collegeId = req.user.college;
-
-      if (!searchTerm) {
-        return res
-          .status(400)
-          .json({ error: "Search term is required", success: false });
-      }
-
-      const programs = await Program.find({
-        college: collegeId,
-        $or: [
+      const baseQuery = { college: collegeId };
+    
+      if(searchTerm){
+        baseQuery.$or = [
           { program_name: { $regex: searchTerm, $options: "i" } },
           { program_fullname: { $regex: searchTerm, $options: "i" } },
-        ],
-      });
+        ];
+      }
+      const programs = await Program.find(baseQuery);
 
       res.status(200).json({ programs: programs, success: true });
     } catch (error) {
