@@ -22,13 +22,12 @@ const programSchema = new Schema({
     field_of_study: {
         type: Schema.Types.ObjectId,
         ref: 'FieldOfStudy',
-        // required: true
+        
     },
     no_of_semester: {
         type: Number,
-        required: true,
-        // unique: true
+        required: true, 
     }
 });
-
+// programSchema.index({ no_of_semester: 1 }, { unique: false });
 exports.Program = mongoose.model("Program", programSchema);
