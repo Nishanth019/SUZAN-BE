@@ -8,7 +8,7 @@ const upload = require("../middlewares/file-upload.middlewares.js");
 // Create program under a college
 router.post("/programs", Auth, CourseController.createProgram);
 // Update program
-router.put("/programs/:programId", CourseController.updateProgram);
+router.put("/programs/updateProgram", CourseController.updateProgram);
 // Delete program
 router.delete("/programs/:programId", CourseController.deleteProgram);
 // Get all programs
