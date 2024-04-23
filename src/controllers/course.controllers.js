@@ -477,10 +477,10 @@ class CourseController {
   // Delete course
   deleteCourse = async (req, res) => {
     try {
-      const { courseId } = req.params; // Extract courseId from request parameters
-
+      const { deletingCourseId } = req.params; // Extract courseId from request parameters
+        console.log(789,deletingCourseId)
       // Delete the course
-      const deletedCourse = await Course.findByIdAndDelete(courseId);
+      const deletedCourse = await Course.findByIdAndDelete(deletingCourseId);
 
       if (!deletedCourse) {
         return res

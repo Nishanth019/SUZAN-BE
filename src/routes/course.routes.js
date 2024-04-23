@@ -51,7 +51,7 @@ router.post("/courses", Auth, CourseController.createCourse);
 // Update course
 router.put("/courses/:courseId", CourseController.updateCourse);
 // Delete course
-router.delete("/courses/:courseId", CourseController.deleteCourse);
+router.delete("/courses/:deletingCourseId", CourseController.deleteCourse);
 // Get all courses
 router.post("/getcourses", Auth, CourseController.getCourses);
 // Get course by ID
