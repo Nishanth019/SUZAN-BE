@@ -63,5 +63,8 @@ router.post("/courses/search", Auth, CourseController.searchCourses);
 
 // upload  file
 router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
+//upload picture
+router.post("/uploadpicture", upload.single("picture"), CourseController.uploadPicture);
+
 
 module.exports.CourseRouter = router;
