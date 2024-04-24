@@ -3,6 +3,7 @@ const { Semester } = require("../models/Semester.model.js");
 const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
 const { Program } = require("../models/Program.model.js");
 const { Course } = require("../models/Course.model.js");
+
 const { Pdf } = require("../models/Pdf.model.js");
 const { Link } = require("../models/Link.model.js");
 
@@ -93,13 +94,13 @@ class CourseController {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
-  };    
+  };
 
   // Delete program
   deleteProgram = async (req, res) => {
     try {
       const { programId } = req.params; // Extract programId from request parameters
-      console.log(100,req.body)
+      console.log(100, req.body);
       // Delete the program
       const deletedProgram = await Program.findByIdAndDelete(programId);
 
@@ -150,8 +151,8 @@ class CourseController {
       const { searchTerm } = req.query;
       const collegeId = req.user.college;
       const baseQuery = { college: collegeId };
-    
-      if(searchTerm){
+
+      if (searchTerm) {
         baseQuery.$or = [
           { program_name: { $regex: searchTerm, $options: "i" } },
           { program_fullname: { $regex: searchTerm, $options: "i" } },
@@ -288,9 +289,9 @@ class CourseController {
   getFieldOfStudyById = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params;
-      console.log(1, fieldOfStudyId);
-      const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
-      console.log(2, fieldOfStudy);
+      // console.log(1, fieldOfStudyId);
+      const fieldOfStudy = await FieldOfStudy.findById({ _id: fieldOfStudyId });
+      // console.log(2, fieldOfStudy);
       if (!fieldOfStudy) {
         return res
           .status(404)
@@ -306,32 +307,61 @@ class CourseController {
 
   getAllSemestersByFieldOfStudy = async (req, res) => {
     try {
-        const { fieldOfStudyId } = req.params;
-        
-        // Find the field of study by its ID
-        const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
+      const { fieldOfStudyId } = req.params;
 
-        // If field of study is not found, return an error response
-        if (!fieldOfStudy) {
-            return res.status(404).json({ error: 'Field of study not found' });
-        }
+      // Find the field of study by its ID
+      const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
 
-        // Extract semester ids from the field of study
-        const semesterIds = fieldOfStudy.semester;
+      // If field of study is not found, return an error response
+      if (!fieldOfStudy) {
+        return res.status(404).json({ error: "Field of study not found" });
+      }
 
-        // Fetch each semester by its id
-        const semesters = await Promise.all(semesterIds.map(async (semesterId) => {
-            const semester = await Semester.findById(semesterId);
-            return semester;
-        }));
+      // Extract semester ids from the field of study
+      const semesterIds = fieldOfStudy.semester;
 
-        // Return the fetched semesters
-        res.status(200).json({semesters:semesters, success: true });
+      // Fetch each semester by its id
+      const semesters = await Promise.all(
+        semesterIds.map(async (semesterId) => {
+          const semester = await Semester.findById(semesterId);
+          return semester;
+        })
+      );
+
+      // Return the fetched semesters
+      res.status(200).json({ semesters: semesters, success: true });
     } catch (error) {
-        console.error('Error in getAllSemestersByFieldOfStudy:', error);
-        res.status(500).json({ error: "Internal Server Error", success: false });
+      console.error("Error in getAllSemestersByFieldOfStudy:", error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
     }
-};
+  };
+
+  getSemesterByCourseId = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      // Find the course by its ID
+      const course = await Course.findById(courseId);
+
+      // If course is not found, return an error response
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      // Fetch the semester by its ID
+      const semester = await Semester.findById(course.semester);
+
+      // If semester is not found, return an error response
+      if (!semester) {
+        return res.status(404).json({ error: "Semester not found" });
+      }
+
+      // Return the fetched semester
+      res.status(200).json({ semester: semester, success: true });
+    } catch (error) {
+      console.error("Error in getSemesterByCourseId:", error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
 
   // Helper function to create a single PDF
   async createPdf(pdfData) {
@@ -392,6 +422,57 @@ class CourseController {
       // throw new Error("Failed to create multiple links");
     }
   }
+
+  //pdf and link
+  getMediaByCourseId = async (req, res) => {
+    try {
+      const { courseId } = req.params;
+      const course = await Course.findById(courseId);
+
+      if (!course) {
+        return res.status(404).json({ error: "Course not found" });
+      }
+
+      const syllabus = await Pdf.findById(course.syllabus_pdf);
+
+      if (!syllabus) {
+        return res.status(404).json({ error: "Syllabus Pdf is not found" });
+      }
+
+      // Retrieve resources PDFs
+      const resourcesPdf = await Pdf.find({
+        _id: { $in: course.resources_pdf },
+      });
+      
+      
+      // Retrieve resources links
+      const resourcesLinks = await Link.find({
+        _id: { $in: course.resources_links },
+      });
+
+      
+
+      // Retrieve pyq PDFs
+      const pyqPdf = await Pdf.find({ _id: { $in: course.pyq_pdf } });
+
+      // Retrieve pyq links
+      const pyqLinks = await Link.find({ _id: { $in: course.pyq_links } });
+
+   
+      // Return the fetched media
+      res.status(200).json({
+        course:course,
+        syllabus: syllabus,
+        resourcesPdf: resourcesPdf,
+        resourcesLinks: resourcesLinks,
+        pyqPdf: pyqPdf,
+        pyqLinks: pyqLinks,
+        success: true,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
 
   createCourse = async (req, res) => {
     try {
@@ -512,36 +593,36 @@ class CourseController {
   // Get all courses
   getCourses = async (req, res) => {
     try {
-      console.log(23456789034567)
+      console.log(23456789034567);
       const { programId, fieldOfStudyId, semesterId } = req.body;
-      console.log(123,programId, fieldOfStudyId, semesterId)
-      
-      console.log(23456789034567)
+      console.log(123, programId, fieldOfStudyId, semesterId);
+
+      console.log(23456789034567);
       const collegeId = req.user.college;
-  
+
       let query = { college: collegeId };
-      
+
       if (programId) {
         query.program = programId;
       }
-  
+
       if (fieldOfStudyId) {
         query.field_of_study = fieldOfStudyId;
       }
-  
+
       if (semesterId) {
         query.semester = semesterId;
       }
-  
+
       const courses = await Course.find(query);
-  
+
       res.status(200).json({ courses: courses, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
-  
+
   async searchCourses(req, res) {
     try {
       let { programId, fieldOfStudyId, semesterId } = req.body;

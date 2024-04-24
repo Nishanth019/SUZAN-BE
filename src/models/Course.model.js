@@ -109,7 +109,7 @@ const courseSchema = new Schema({
       ref: 'link',
     }
   ], // Array of link resources for Previous Year Questions
-  comments: [commentSchema], // Array of comments
+  // comments: [commentSchema], // Array of comments
 });
 
 exports.Course = mongoose.model("Course", courseSchema);
