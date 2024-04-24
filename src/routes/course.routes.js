@@ -52,7 +52,7 @@ router.post("/courses", Auth, CourseController.createCourse);
 // Update course
 router.put("/courses/:courseId", CourseController.updateCourse);
 // Delete course
-router.delete("/courses/:courseId", CourseController.deleteCourse);
+router.delete("/courses/:deletingCourseId", CourseController.deleteCourse);
 // Get all courses
 router.post("/getcourses", Auth, CourseController.getCourses);
 // Get course by ID
@@ -63,5 +63,8 @@ router.post("/courses/search", Auth, CourseController.searchCourses);
 
 // upload  file
 router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
+//upload picture
+router.post("/uploadpicture", upload.single("picture"), CourseController.uploadPicture);
+
 
 module.exports.CourseRouter = router;

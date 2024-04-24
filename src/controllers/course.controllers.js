@@ -489,10 +489,10 @@ class CourseController {
   // Delete course
   deleteCourse = async (req, res) => {
     try {
-      const { courseId } = req.params; // Extract courseId from request parameters
-
+      const { deletingCourseId } = req.params; // Extract courseId from request parameters
+        console.log(789,deletingCourseId)
       // Delete the course
-      const deletedCourse = await Course.findByIdAndDelete(courseId);
+      const deletedCourse = await Course.findByIdAndDelete(deletingCourseId);
 
       if (!deletedCourse) {
         return res
@@ -606,13 +606,29 @@ class CourseController {
       res.status(200).json({
         success: true,
         message: "File uploaded successfully",
-        fileUrl: fileUrl,
+        file: fileUrl,
       });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, error: "Internal Server Error" });
     }
   };
+
+  uploadPicture = async (req, res) => {
+    try {
+      const pictureUrl = req.file.location; // Assuming Multer-S3 provides 'location' for the uploaded file
+      console.log(pictureUrl);
+      res.status(200).json({
+        success: true,
+        message: "Picture uploaded successfully",
+        picture: pictureUrl,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  };
+
 }
 
 // Export an instance of CourseController
