@@ -41,6 +41,7 @@ router.get(
   "/fieldOfStudyById/:fieldOfStudyId",
   CourseController.getFieldOfStudyById
 );
+router.post("/fieldOfStudy/search", Auth, CourseController.searchFieldOfStudy);
 
 //SEMESTERS
 // Get all semesters by fieldOfStudy
