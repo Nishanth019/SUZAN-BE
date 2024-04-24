@@ -7,7 +7,6 @@ class CollegeController {
     getAllVerifiedColleges = async (req, res) => {
       try {
         console.log(1);
-
         const colleges = await College.find({ isVerified: true });
         console.log(2);
         res.status(200).json({ colleges: colleges, success: true });

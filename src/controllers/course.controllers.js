@@ -122,7 +122,9 @@ class CourseController {
   getAllPrograms = async (req, res) => {
     try {
       const collegeId = req.user.college; // Extract collegeId from req.user
+      console.log(121, collegeId);
       const programs = await Program.find({ college: collegeId });
+      console.log("asd",programs)
       res.status(200).json({ programs: programs, success: true });
     } catch (error) {
       console.error(error);
@@ -181,7 +183,7 @@ class CourseController {
           .status(404)
           .json({ error: "Program not found", success: false });
       }
-
+      console.log("nani", field_of_studyname, field_of_studyfullname)
       // Create the field of study
       const fieldOfStudy = new FieldOfStudy({
         field_of_studyname: field_of_studyname,
@@ -208,6 +210,7 @@ class CourseController {
       });
     } catch (error) {
       console.error(error);
+      console.log(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
@@ -216,12 +219,22 @@ class CourseController {
   updateFieldOfStudy = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params; // Extract fieldOfStudyId from request parameters
-      const updateData = req.body; // Extract update data from request body
+      const {field_of_studyname,field_of_studyfullname} = req.body; // Extract update data from request body
 
+      console.log("nannni: ",fieldOfStudyId, field_of_studyname, field_of_studyfullname)
+      // Check if any of the fields are undefined
+      if (!field_of_studyname || !field_of_studyfullname ) {
+        return res
+          .status(400)
+          .json({ error: "Please provide all necessary data", success: false });
+      }
       // Update the field of study
+
       const updatedFieldOfStudy = await FieldOfStudy.findByIdAndUpdate(
-        fieldOfStudyId,
-        updateData,
+        fieldOfStudyId,{
+          field_of_studyname: field_of_studyname,
+          field_of_studyfullname: field_of_studyfullname,
+        },
         { new: true }
       );
 
@@ -241,6 +254,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+  
   // Delete field of study
   deleteFieldOfStudy = async (req, res) => {
     try {
@@ -362,6 +376,28 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+async searchFieldOfStudy(req, res) {
+  try {
+    const { searchTerm } = req.query;
+    const collegeId = req.user.college;
+    const baseQuery = { college: collegeId };
+  
+    if(searchTerm){
+      baseQuery.$or = [
+        { field_of_studyname: { $regex: searchTerm, $options: "i" } },
+        { field_of_studyfullname: { $regex: searchTerm, $options: "i" } },
+      ];
+    }
+    const fieldsOfStudy = await FieldOfStudy.find(baseQuery);
+
+    res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
+  } catch (error) {
+    console.error("Search Field of Study  Error:", error);
+    res.status(500).json({ error: "Internal Server Error", success: false });
+  }
+}
+
 
   // Helper function to create a single PDF
   async createPdf(pdfData) {

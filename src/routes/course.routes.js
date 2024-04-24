@@ -41,6 +41,7 @@ router.get(
   "/fieldOfStudyById/:fieldOfStudyId",
   CourseController.getFieldOfStudyById
 );
+router.post("/fieldOfStudy/search", Auth, CourseController.searchFieldOfStudy);
 
 //SEMESTERS
 // Get all semesters by fieldOfStudy
@@ -75,5 +76,7 @@ router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
 //upload picture
 router.post("/uploadpicture", upload.single("picture"), CourseController.uploadPicture);
 
+
+//routes for course
 
 module.exports.CourseRouter = router;
