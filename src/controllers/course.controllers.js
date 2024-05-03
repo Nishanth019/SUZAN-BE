@@ -62,10 +62,10 @@ class CourseController {
         req.body; // Extract update data from request body
 
       // Check if any of the fields are undefined
-      if (!programId || !programName || !programFullName || !semestersCount) {
+      if (!programName || !programFullName || !semestersCount) {
         return res
           .status(400)
-          .json({ error: "Please provide all necessary data", success: false });
+          .json({ error: "Pleass provide all necessary data", success: false });
       }
 
       // Update the program
@@ -215,6 +215,8 @@ class CourseController {
     }
   };
 
+
+
   // Update field of study
   updateFieldOfStudy = async (req, res) => {
     try {
@@ -318,6 +320,26 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+  //get all fieldofstudy of a college
+  getAllFieldOfStudyOfCollege = async (req, res) => {
+    try {
+      
+      console.log(523);
+      const collegeId = req.user.college;
+      //find first program using that college id
+      // const programId= await Program.findOne({college: collegeId});
+
+      const fieldsOfStudy = await FieldOfStudy.find({
+          college: collegeId,
+      });
+      console.log(22, fieldsOfStudy);
+      res.status(200).json({ fieldsOfStudy: fieldsOfStudy , success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
+
 
   getAllSemestersByFieldOfStudy = async (req, res) => {
     try {
