@@ -288,7 +288,7 @@ class CourseController {
       console.log(req.params.id);
       const programId = req.params.id;
       const collegeId = req.user.college;
-      console.log(5234, programId, collegeId);
+      // console.log(5234, programId, collegeId);
 
       const fieldsOfStudy = await FieldOfStudy.find({
         program: programId,
@@ -456,7 +456,7 @@ async searchFieldOfStudy(req, res) {
   // Helper function to create multiple PDFs
   async createMultiplePdfs(pdfDataArray) {
     try {
-      // console.log(77,pdfDataArray)
+      console.log(77,pdfDataArray)
       const pdfs = await Promise.all(
         pdfDataArray.map(async (pdfData) => await this.createPdf(pdfData))
       );
@@ -470,6 +470,7 @@ async searchFieldOfStudy(req, res) {
   // Helper function to create multiple links
   async createLinks(linkDataArray) {
     try {
+      console.log(555,linkDataArray);
       const links = await Promise.all(
         linkDataArray.map(async (linkData) => await this.createLink(linkData))
       );
@@ -596,25 +597,56 @@ async searchFieldOfStudy(req, res) {
     }
   };
 
-  // Update course
+  //updateCourse
   updateCourse = async (req, res) => {
     try {
-      const { courseId } = req.params; // Extract courseId from request parameters
-      const updateData = req.body; // Extract update data from request body
-
+      const {
+        course_name,
+        course_code,
+        instructor_name,
+        instructor_photo,
+        course_type,
+        credits,
+        syllabus,
+        resource_links,
+        resource_pdfs,
+        pyq_links,
+        pyq_pdfs,
+      } = req.body;
+      console.log(1,req.body)
+      // const collegeId = req.user.college; // Extract collegeId from req.user
+      const courseId = req.params.courseId; // Extract courseId from params
+      console.log(2,courseId)
+      // Update PDFs for syllabus
+      const updatedSyllabusPdf = await this.createPdf({pdf_name:"Syllabus",pdf_url:syllabus});
+       console.log(3,updatedSyllabusPdf)
+      // Update links for resource links, PYQs links
+      const updatedResourceLinkDocuments = await this.createLinks( resource_links);
+      console.log(4,updatedResourceLinkDocuments)
+      const updatedPyqLinkDocuments = await this.createLinks(pyq_links);
+      console.log(5,updatedPyqLinkDocuments)
+      // Update PDFs for resource & pyqs PDFs
+      const updatedResourcePdfDocuments = await this.createMultiplePdfs(resource_pdfs);
+      console.log(6,updatedResourcePdfDocuments)
+      const updatedPyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
+      console.log(7,updatedPyqPdfs)
       // Update the course
-      const updatedCourse = await Course.findByIdAndUpdate(
-        courseId,
-        updateData,
-        { new: true }
-      );
-
-      if (!updatedCourse) {
-        return res
-          .status(404)
-          .json({ error: "Course not found", success: false });
-      }
-
+      const updatedCourse = await Course.findByIdAndUpdate(courseId, {
+        $set: {
+          course_name,
+          course_code,
+          instructor_name,
+          instructor_photo,
+          course_type,
+          credits,
+          syllabus_pdf: updatedSyllabusPdf._id,
+          resources_pdf: updatedResourcePdfDocuments.map((pdf) => pdf._id),
+          resources_links: updatedResourceLinkDocuments.map((link) => link._id),
+          pyq_pdf: updatedPyqPdfs.map((pdf) => pdf._id),
+          pyq_links: updatedPyqLinkDocuments.map((link) => link._id),
+        }
+      }, { new: true });
+      console.log(10)
       res.status(200).json({
         course: updatedCourse,
         success: true,
@@ -625,6 +657,7 @@ async searchFieldOfStudy(req, res) {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
   // Delete course
   deleteCourse = async (req, res) => {
     try {
