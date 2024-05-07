@@ -153,7 +153,7 @@ class CourseController {
       const { searchTerm } = req.query;
       const collegeId = req.user.college;
       const baseQuery = { college: collegeId };
-
+      console.log(123,searchTerm,baseQuery)
       if (searchTerm) {
         baseQuery.$or = [
           { program_name: { $regex: searchTerm, $options: "i" } },
@@ -344,7 +344,8 @@ class CourseController {
   getAllSemestersByFieldOfStudy = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params;
-
+      console.log("gfgg",req.params);
+      console.log("gfgg",fieldOfStudyId);
       // Find the field of study by its ID
       const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
 
