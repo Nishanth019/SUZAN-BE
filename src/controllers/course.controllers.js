@@ -286,7 +286,7 @@ class CourseController {
       console.log(req.params.id);
       const programId = req.params.id;
       const collegeId = req.user.college;
-      console.log(5234, programId, collegeId);
+      // console.log(5234, programId, collegeId);
 
       const fieldsOfStudy = await FieldOfStudy.find({
         program: programId,
