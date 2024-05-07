@@ -74,6 +74,7 @@ const courseSchema = new Schema({
   },
   course_type: {
     type: String,
+    enum: ["compulsory", "elective"],
     required: true,
   },
   credits: {
