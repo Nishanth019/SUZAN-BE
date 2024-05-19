@@ -58,9 +58,8 @@ class CourseController {
   // Update program
   updateProgram = async (req, res) => {
     try {
-      const { programId, programName, programFullName, semestersCount } =
-        req.body; // Extract update data from request body
-
+      const { programId, programName, programFullName, semestersCount } = req.body; // Extract update data from request body
+        console.log(90,programId)
       // Check if any of the fields are undefined
       if (!programId || !programName || !programFullName || !semestersCount) {
         return res
@@ -770,7 +769,7 @@ async searchFieldOfStudy(req, res) {
       console.log(pictureUrl);
       res.status(200).json({
         success: true,
-        message: "Picture uploaded successfully",
+        message: "Picture added successfully",
         picture: pictureUrl,
       });
     } catch (error) {
