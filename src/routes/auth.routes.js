@@ -17,7 +17,6 @@ router.post("/student/completeSignup", AuthController.completeStudentSignup);
 // Route for resend OTP
 router.post("/resendotp", AuthController.resendOtp);
 
-
 // Routes for user signin
 router.post("/signin", AuthController.signin);
 

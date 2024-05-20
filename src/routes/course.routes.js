@@ -77,6 +77,4 @@ router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
 router.post("/uploadpicture", upload.single("picture"), CourseController.uploadPicture);
 
 
-//routes for course
-
 module.exports.CourseRouter = router;
