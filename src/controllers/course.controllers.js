@@ -4,7 +4,7 @@ const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
 const { Program } = require("../models/Program.model.js");
 const { Course } = require("../models/Course.model.js");
 
-const { Pdf } = require("../models/Pdf.model.js");
+const { Pdf } = require("../models/pdf.model.js");
 const { Link } = require("../models/Link.model.js");
 
 // const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
