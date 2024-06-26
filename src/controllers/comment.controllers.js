@@ -37,9 +37,9 @@ class commentController {
 
     createReplyComment = async (req, res) => {
         try {
-            const { content,  mainComment } = req.body;
+            const { content,  mainComment , repliedTo } = req.body;
             const { id } = req.user;
-            const newReply = new ReplyComment({ user: id, content, mainComment });
+            const newReply = new ReplyComment({ user: id, content, mainComment, repliedTo });
             await newReply.save();
             // Update main comment to include the reply
             await Comment.findByIdAndUpdate( mainComment, { $push: { replies: newReply._id } });
@@ -117,7 +117,7 @@ class commentController {
         return res.status(403).json({ message: 'Unauthorized to delete this comment' });
       }
   
-      await Comment.deleteOne({ _id: commentId });
+      await ReplyComment.deleteOne({ _id: commentId });
       res.status(200).json({ message: 'Reply Comment deleted successfully' });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -225,6 +225,74 @@ likeComment = async (req, res) => {
           res.status(500).json({ error: error.message });
         }
       };
+
+    // Controller for getting a comment by id
+    getComment = async (req, res) => {
+      try {
+        const commentId = req.params.commentId;
+  
+        const comment = await Comment.findById(
+          commentId
+        );
+  
+        if (!comment) {
+          return res.status(404).json({ message: 'Comment not found' });
+        }
+  
+        res.status(200).json({ message: 'Comment fetched successfully', comment: comment });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    };
+  
+    // Controller for getting a reply comment by id
+    getReplyComment = async (req, res) => {
+      try {
+        const commentId = req.params.commentId;
+  
+        const comment = await ReplyComment.findById(
+          commentId
+        );
+  
+        if (!comment) {
+          return res.status(404).json({ message: 'Comment not found' });
+        }
+  
+        res.status(200).json({ message: 'Comment fetched successfully', comment: comment });
+      } catch (error) {
+        res.status(500).json({ error: error.message });
+      }
+    };
+
+  // Controller for getting likes of a comment
+  getCommentLikes = async (req, res) => {
+    try {
+
+      const commentId = req.params.commentId;
+      console.log(980,commentId)
+      const comment = await Comment.findById(commentId).populate('likes');
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' });
+      }
+      res.status(200).json({ likes: comment.likes });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
+
+  // Controller for getting likes of a reply comment
+  getReplyCommentLikes = async (req, res) => {
+    try {
+      const commentId = req.params.commentId;
+      const replyComment = await ReplyComment.findById(commentId).populate('likes');
+      if (!replyComment) {
+        return res.status(404).json({ message: 'Reply comment not found' });
+      }
+      res.status(200).json({ likes: replyComment.likes });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  };
 
 }
 

@@ -34,5 +34,19 @@ router.put('/comment/:commentId', Auth, commentController.updateComment);
 // Route for updating a reply comment
 router.put('/replycomment/:commentId', Auth, commentController.updateReplyComment);
 
+// Route for getting comment by id
+router.get('/comment/:commentId', Auth, commentController.getComment);
+
+// Route for getting reply comment by id
+router.get('/replycomment/:commentId', Auth, commentController.getReplyComment);
+
+// Route for getting likes of a comment
+router.get('/comment/:commentId/likes', Auth, commentController.getCommentLikes);
+
+// Route for getting likes of a reply comment
+router.get('/replycomment/:commentId/likes', Auth, commentController.getReplyCommentLikes);
+
+
+
 module.exports.CommentRouter = router;
 
