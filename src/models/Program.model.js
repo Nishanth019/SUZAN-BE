@@ -7,12 +7,12 @@ const programSchema = new Schema({
     program_name: {
         type: String,
         required: true,
-        unique: true
+        
     },
     program_fullname: {
         type: String,
         required: true,
-        unique: true
+       
     },
     college: {
         type: Schema.Types.ObjectId,
