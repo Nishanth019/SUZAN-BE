@@ -7,12 +7,12 @@ const fieldOfStudySchema = new Schema({
     field_of_studyname: {
         type: String,
         required: true,
-        unique: true
+        
     },
     field_of_studyfullname: {
         type: String,
         required: true,
-        unique: true
+       
     },
     program: {
         type: Schema.Types.ObjectId,
