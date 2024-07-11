@@ -3,9 +3,8 @@ const { Semester } = require("../models/Semester.model.js");
 const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
 const { Program } = require("../models/Program.model.js");
 const { Course } = require("../models/Course.model.js");
-
-const { Pdf } = require("../models/Pdf.model.js");
-const { Link } = require("../models/Link.model.js");
+const { Pdf } = require("../models/pdf.model.js");
+const { Link } = require("../models/link.model.js");
 
 // const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
 
@@ -17,11 +16,25 @@ class CourseController {
       const { programName, programFullName, semestersCount } = req.body; // Extract program details from request body
       // console.log(55,req.user)
       const collegeId = req.user.college; // Extract collegeId from req.user
-
+      // console.log(88,req.user,req.user.college)
       if (!programName || !programFullName || !semestersCount) {
         return res
           .status(400)
           .json({ error: "Missing required fields", success: false });
+      }
+
+      const existingProgram = await Program.findOne({
+        college: collegeId,
+        $or: [
+          { program_name: programName },
+          { program_fullname: programFullName },
+        ],
+      });
+      if (existingProgram) {
+        return res.status(400).json({
+          error: "Program with this name or full name already exists",
+          success: false,
+        });
       }
 
       // Create the program
@@ -58,23 +71,31 @@ class CourseController {
   // Update program
   updateProgram = async (req, res) => {
     try {
-      const { programId, programName, programFullName, semestersCount } =
-        req.body; // Extract update data from request body
-
+      const { programId, programFullName } = req.body; // Extract update data from request body
+      console.log(89, req.user);
+      const collegeId = req.user.college; // Extract collegeId from req.user
+      // console.log(90, collegeId);
       // Check if any of the fields are undefined
-      if (!programName || !programFullName || !semestersCount) {
+      if (!programId || !programFullName) {
         return res
           .status(400)
           .json({ error: "Pleass provide all necessary data", success: false });
       }
-
+      const existingProgram = await Program.findOne({
+        college: collegeId,
+        program_fullname: programFullName,
+      });
+      if (existingProgram) {
+        return res.status(400).json({
+          error: "Program with this  full name already exists",
+          success: false,
+        });
+      }
       // Update the program
       const updatedProgram = await Program.findByIdAndUpdate(
         programId,
         {
-          program_name: programName,
           program_fullname: programFullName,
-          no_of_semester: semestersCount,
         },
         { new: true }
       );
@@ -124,7 +145,7 @@ class CourseController {
       const collegeId = req.user.college; // Extract collegeId from req.user
       console.log(121, collegeId);
       const programs = await Program.find({ college: collegeId });
-      console.log("asd",programs)
+      console.log("asd", programs);
       res.status(200).json({ programs: programs, success: true });
     } catch (error) {
       console.error(error);
@@ -172,10 +193,9 @@ class CourseController {
   // Create field of study under a program
   createFieldOfStudy = async (req, res) => {
     try {
-      const { field_of_studyname, field_of_studyfullname, programId } =
+      const { programId, field_of_studyname, field_of_studyfullname } =
         req.body; // Extract field of study details from request body
-      const collegeId = req.user.college; // Extract collegeId from req.user
-
+      const collegeId = req.user.college; // Extract collegeId from req.use
       // Check if the program exists
       const program = await Program.findById(programId);
       if (!program) {
@@ -183,8 +203,23 @@ class CourseController {
           .status(404)
           .json({ error: "Program not found", success: false });
       }
-      console.log("nani", field_of_studyname, field_of_studyfullname)
+      // console.log("nani", field_of_studyname, field_of_studyfullname)
       // Create the field of study
+      const existingFieldOfStudy = await FieldOfStudy.findOne({
+        college: collegeId,
+        program: programId,
+        $or: [
+          { field_of_studyname: field_of_studyname },
+          { field_of_studyfullname: field_of_studyfullname },
+        ],
+      });
+
+      if (existingFieldOfStudy) {
+        return res.status(400).json({
+          error: "Field of study already exists",
+          success: false,
+        });
+      }
       const fieldOfStudy = new FieldOfStudy({
         field_of_studyname: field_of_studyname,
         field_of_studyfullname: field_of_studyfullname,
@@ -221,19 +256,38 @@ class CourseController {
   updateFieldOfStudy = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params; // Extract fieldOfStudyId from request parameters
-      const {field_of_studyname,field_of_studyfullname} = req.body; // Extract update data from request body
-
-      console.log("nannni: ",fieldOfStudyId, field_of_studyname, field_of_studyfullname)
+      const { programId, field_of_studyname, field_of_studyfullname } =
+        req.body; // Extract update data from request body
+      const collegeId = req.user.college;
+      //  console.log(1, programId, fieldOfStudyId, field_of_studyname, field_of_studyfullname);
+      // console.log("nannni: ",fieldOfStudyId, field_of_studyname, field_of_studyfullname)
       // Check if any of the fields are undefined
-      if (!field_of_studyname || !field_of_studyfullname ) {
+      if (!field_of_studyname || !field_of_studyfullname) {
         return res
           .status(400)
           .json({ error: "Please provide all necessary data", success: false });
       }
-      // Update the field of study
 
+      // Check if the field of study exists
+      const existingFieldOfStudy = await FieldOfStudy.findOne({
+        college: collegeId,
+        program: programId,
+        $or: [
+          { field_of_studyname: field_of_studyname },
+          { field_of_studyfullname: field_of_studyfullname },
+        ],
+      });
+
+      if (existingFieldOfStudy) {
+        return res.status(400).json({
+          error: "Field of study already exists",
+          success: false,
+        });
+      }
+      // Update the field of study
       const updatedFieldOfStudy = await FieldOfStudy.findByIdAndUpdate(
-        fieldOfStudyId,{
+        fieldOfStudyId,
+        {
           field_of_studyname: field_of_studyname,
           field_of_studyfullname: field_of_studyfullname,
         },
@@ -256,7 +310,7 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
-  
+
   // Delete field of study
   deleteFieldOfStudy = async (req, res) => {
     try {
@@ -400,27 +454,32 @@ class CourseController {
     }
   };
 
-async searchFieldOfStudy(req, res) {
-  try {
-    const { searchTerm } = req.query;
-    const collegeId = req.user.college;
-    const baseQuery = { college: collegeId };
-  
-    if(searchTerm){
-      baseQuery.$or = [
-        { field_of_studyname: { $regex: searchTerm, $options: "i" } },
-        { field_of_studyfullname: { $regex: searchTerm, $options: "i" } },
-      ];
+  async searchFieldOfStudy(req, res) {
+    try {
+      const { searchTerm, programId } = req.body; // Extract programId from body
+      const collegeId = req.user.college;
+      const baseQuery = { college: collegeId };
+
+      if (searchTerm) {
+        baseQuery.$or = [
+          { field_of_studyname: { $regex: searchTerm, $options: "i" } },
+          { field_of_studyfullname: { $regex: searchTerm, $options: "i" } },
+        ];
+      }
+
+      // Add programId to the query if provided
+      if (programId) {
+        baseQuery.program = programId;
+      }
+
+      const fieldsOfStudy = await FieldOfStudy.find(baseQuery);
+
+      res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
+    } catch (error) {
+      console.error("Search Field of Study Error:", error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
     }
-    const fieldsOfStudy = await FieldOfStudy.find(baseQuery);
-
-    res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
-  } catch (error) {
-    console.error("Search Field of Study  Error:", error);
-    res.status(500).json({ error: "Internal Server Error", success: false });
   }
-}
-
 
   // Helper function to create a single PDF
   async createPdf(pdfData) {
@@ -457,7 +516,7 @@ async searchFieldOfStudy(req, res) {
   // Helper function to create multiple PDFs
   async createMultiplePdfs(pdfDataArray) {
     try {
-      console.log(77,pdfDataArray)
+      console.log(77, pdfDataArray);
       const pdfs = await Promise.all(
         pdfDataArray.map(async (pdfData) => await this.createPdf(pdfData))
       );
@@ -471,7 +530,7 @@ async searchFieldOfStudy(req, res) {
   // Helper function to create multiple links
   async createLinks(linkDataArray) {
     try {
-      console.log(555,linkDataArray);
+      console.log(555, linkDataArray);
       const links = await Promise.all(
         linkDataArray.map(async (linkData) => await this.createLink(linkData))
       );
@@ -503,14 +562,11 @@ async searchFieldOfStudy(req, res) {
       const resourcesPdf = await Pdf.find({
         _id: { $in: course.resources_pdf },
       });
-      
-      
+
       // Retrieve resources links
       const resourcesLinks = await Link.find({
         _id: { $in: course.resources_links },
       });
-
-      
 
       // Retrieve pyq PDFs
       const pyqPdf = await Pdf.find({ _id: { $in: course.pyq_pdf } });
@@ -518,10 +574,9 @@ async searchFieldOfStudy(req, res) {
       // Retrieve pyq links
       const pyqLinks = await Link.find({ _id: { $in: course.pyq_links } });
 
-   
       // Return the fetched media
       res.status(200).json({
-        course:course,
+        course: course,
         syllabus: syllabus,
         resourcesPdf: resourcesPdf,
         resourcesLinks: resourcesLinks,
@@ -614,40 +669,53 @@ async searchFieldOfStudy(req, res) {
         pyq_links,
         pyq_pdfs,
       } = req.body;
-      console.log(1,req.body)
+      console.log(1, req.body);
       // const collegeId = req.user.college; // Extract collegeId from req.user
       const courseId = req.params.courseId; // Extract courseId from params
-      console.log(2,courseId)
+      console.log(2, courseId);
       // Update PDFs for syllabus
-      const updatedSyllabusPdf = await this.createPdf({pdf_name:"Syllabus",pdf_url:syllabus});
-       console.log(3,updatedSyllabusPdf)
+      const updatedSyllabusPdf = await this.createPdf({
+        pdf_name: "Syllabus",
+        pdf_url: syllabus,
+      });
+      console.log(3, updatedSyllabusPdf);
       // Update links for resource links, PYQs links
-      const updatedResourceLinkDocuments = await this.createLinks( resource_links);
-      console.log(4,updatedResourceLinkDocuments)
+      const updatedResourceLinkDocuments = await this.createLinks(
+        resource_links
+      );
+      console.log(4, updatedResourceLinkDocuments);
       const updatedPyqLinkDocuments = await this.createLinks(pyq_links);
-      console.log(5,updatedPyqLinkDocuments)
+      console.log(5, updatedPyqLinkDocuments);
       // Update PDFs for resource & pyqs PDFs
-      const updatedResourcePdfDocuments = await this.createMultiplePdfs(resource_pdfs);
-      console.log(6,updatedResourcePdfDocuments)
+      const updatedResourcePdfDocuments = await this.createMultiplePdfs(
+        resource_pdfs
+      );
+      console.log(6, updatedResourcePdfDocuments);
       const updatedPyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
-      console.log(7,updatedPyqPdfs)
+      console.log(7, updatedPyqPdfs);
       // Update the course
-      const updatedCourse = await Course.findByIdAndUpdate(courseId, {
-        $set: {
-          course_name,
-          course_code,
-          instructor_name,
-          instructor_photo,
-          course_type,
-          credits,
-          syllabus_pdf: updatedSyllabusPdf._id,
-          resources_pdf: updatedResourcePdfDocuments.map((pdf) => pdf._id),
-          resources_links: updatedResourceLinkDocuments.map((link) => link._id),
-          pyq_pdf: updatedPyqPdfs.map((pdf) => pdf._id),
-          pyq_links: updatedPyqLinkDocuments.map((link) => link._id),
-        }
-      }, { new: true });
-      console.log(10)
+      const updatedCourse = await Course.findByIdAndUpdate(
+        courseId,
+        {
+          $set: {
+            course_name,
+            course_code,
+            instructor_name,
+            instructor_photo,
+            course_type,
+            credits,
+            syllabus_pdf: updatedSyllabusPdf._id,
+            resources_pdf: updatedResourcePdfDocuments.map((pdf) => pdf._id),
+            resources_links: updatedResourceLinkDocuments.map(
+              (link) => link._id
+            ),
+            pyq_pdf: updatedPyqPdfs.map((pdf) => pdf._id),
+            pyq_links: updatedPyqLinkDocuments.map((link) => link._id),
+          },
+        },
+        { new: true }
+      );
+      console.log(10);
       res.status(200).json({
         course: updatedCourse,
         success: true,
@@ -663,7 +731,7 @@ async searchFieldOfStudy(req, res) {
   deleteCourse = async (req, res) => {
     try {
       const { deletingCourseId } = req.params; // Extract courseId from request parameters
-        console.log(789,deletingCourseId)
+      console.log(789, deletingCourseId);
       // Delete the course
       const deletedCourse = await Course.findByIdAndDelete(deletingCourseId);
 
@@ -717,9 +785,8 @@ async searchFieldOfStudy(req, res) {
 
   async searchCourses(req, res) {
     try {
-      let { programId, fieldOfStudyId, semesterId } = req.body;
+      let { programId, fieldOfStudyId, semesterId, searchTerm } = req.body;
       const collegeId = req.user.college;
-      const { searchTerm } = req.query; // Extract searchTerm from query parameters
 
       // Construct base query object with collegeId
       const baseQuery = { college: collegeId };
@@ -732,15 +799,14 @@ async searchFieldOfStudy(req, res) {
       }
 
       // Add programId, fieldOfStudyId, and semesterId to the query if provided
-      if (programId && fieldOfStudyId && semesterId) {
+      if (programId) {
         baseQuery.program = programId;
+      }
+      if (fieldOfStudyId) {
         baseQuery.field_of_study = fieldOfStudyId;
+      }
+      if (semesterId) {
         baseQuery.semester = semesterId;
-      } else if (programId && fieldOfStudyId) {
-        baseQuery.program = programId;
-        baseQuery.field_of_study = fieldOfStudyId;
-      } else if (programId) {
-        baseQuery.program = programId;
       }
 
       // Perform the course search using the constructed query
@@ -793,7 +859,7 @@ async searchFieldOfStudy(req, res) {
       console.log(pictureUrl);
       res.status(200).json({
         success: true,
-        message: "Picture uploaded successfully",
+        message: "Picture added successfully",
         picture: pictureUrl,
       });
     } catch (error) {
@@ -801,7 +867,6 @@ async searchFieldOfStudy(req, res) {
       res.status(500).json({ success: false, error: "Internal Server Error" });
     }
   };
-
 }
 
 // Export an instance of CourseController

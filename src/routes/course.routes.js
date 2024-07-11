@@ -8,9 +8,9 @@ const upload = require("../middlewares/file-upload.middlewares.js");
 // Create program under a college
 router.post("/programs", Auth, CourseController.createProgram);
 // Update program
-router.put("/programs/updateProgram", CourseController.updateProgram);
+router.put("/programs/updateProgram",Auth, CourseController.updateProgram);
 // Delete program
-router.delete("/programs/:programId", CourseController.deleteProgram);
+router.delete("/programs/:programId", Auth,CourseController.deleteProgram);
 // Get all programs
 router.get("/programs", Auth, CourseController.getAllPrograms);
 // Get program by ID
@@ -27,11 +27,13 @@ router.post("/fieldOfStudy", Auth, CourseController.createFieldOfStudy);
 // Update field of study
 router.put(
   "/fieldOfStudy/:fieldOfStudyId",
+  Auth,
   CourseController.updateFieldOfStudy
 );
 // Delete field of study
 router.delete(
   "/fieldOfStudy/:fieldOfStudyId",
+  Auth,
   CourseController.deleteFieldOfStudy
 );
 // Get all fields of study
@@ -44,6 +46,8 @@ router.get(
   CourseController.getFieldOfStudyById
 );
 router.post("/fieldOfStudy/search", Auth, CourseController.searchFieldOfStudy);
+
+
 
 //SEMESTERS
 // Get all semesters by fieldOfStudy
@@ -78,7 +82,5 @@ router.post("/uploadfile", upload.single("file"), CourseController.uploadFile);
 //upload picture
 router.post("/uploadpicture", upload.single("picture"), CourseController.uploadPicture);
 
-
-//routes for course
 
 module.exports.CourseRouter = router;

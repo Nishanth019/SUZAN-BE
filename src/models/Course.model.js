@@ -2,38 +2,6 @@ const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
-// Define Reply Schema
-const replySchema = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a User schema
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
-
-// Define Comment Schema
-const commentSchema = new Schema(
-  {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a User schema
-      required: true,
-    },
-    content: {
-      type: String,
-      required: true,
-    },
-    replies: [replySchema], // Array of replies
-  },
-  { timestamps: true }
-);
 // Define Course Schema
 const courseSchema = new Schema({
   course_name: {
@@ -109,8 +77,11 @@ const courseSchema = new Schema({
       type: Schema.Types.ObjectId,
       ref: 'link',
     }
-  ], // Array of link resources for Previous Year Questions
-  // comments: [commentSchema], // Array of comments
+  ], 
+  comments: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Comment'
+  }]
 });
 
 exports.Course = mongoose.model("Course", courseSchema);
