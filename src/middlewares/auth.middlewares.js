@@ -34,7 +34,7 @@ module.exports.Auth = async (req, res, next) => {
       // Call next middleware
       next();
     } catch (error) {
-      console.error("Error during JWT verification:", error);
+      console.error("Errors during JWT verification:", error);
       res.status(401).send({
         success: false,
         message: "Unauthorized Access",
