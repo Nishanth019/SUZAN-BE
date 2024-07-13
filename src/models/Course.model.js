@@ -38,7 +38,7 @@ const courseSchema = new Schema({
   },
   instructor_photo: {
     type: String,
-    required: true,
+    // required: true,
   },
   course_type: {
     type: String,

@@ -12,6 +12,7 @@ const { CollegeRouter } = require("../routes/college.routes.js");
 const { AuthRouter } = require("../routes/auth.routes.js");
 const { CourseRouter } = require("../routes/course.routes.js");
 const { CommentRouter } = require("../routes/comment.routes.js");
+const { FeedbackRouter } = require("../routes/feedback.routes.js");
 
 module.exports = (app) => {
   var corsOptions = {
@@ -57,6 +58,7 @@ module.exports = (app) => {
   app.use("/api/auth", AuthRouter);
   app.use("/api/course", CourseRouter);
   app.use("/api/comments",CommentRouter);
+  app.use("/api/feedback", FeedbackRouter);
 
   //handling async errors in apis
   //   app.use(ErrorHandler);

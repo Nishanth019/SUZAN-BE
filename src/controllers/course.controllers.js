@@ -79,7 +79,7 @@ class CourseController {
       if (!programId || !programFullName) {
         return res
           .status(400)
-          .json({ error: "Please provide all necessary data", success: false });
+          .json({ error: "Pleass provide all necessary data", success: false });
       }
       const existingProgram = await Program.findOne({
         college: collegeId,
@@ -174,7 +174,7 @@ class CourseController {
       const { searchTerm } = req.query;
       const collegeId = req.user.college;
       const baseQuery = { college: collegeId };
-
+      console.log(123,searchTerm,baseQuery)
       if (searchTerm) {
         baseQuery.$or = [
           { program_name: { $regex: searchTerm, $options: "i" } },
@@ -249,6 +249,8 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+
 
   // Update field of study
   updateFieldOfStudy = async (req, res) => {
@@ -372,11 +374,32 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+  //get all fieldofstudy of a college
+  getAllFieldOfStudyOfCollege = async (req, res) => {
+    try {
+      
+      console.log(523);
+      const collegeId = req.user.college;
+      //find first program using that college id
+      // const programId= await Program.findOne({college: collegeId});
+
+      const fieldsOfStudy = await FieldOfStudy.find({
+          college: collegeId,
+      });
+      console.log(22, fieldsOfStudy);
+      res.status(200).json({ fieldsOfStudy: fieldsOfStudy , success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
+
 
   getAllSemestersByFieldOfStudy = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params;
-
+      console.log("gfgg",req.params);
+      console.log("gfgg",fieldOfStudyId);
       // Find the field of study by its ID
       const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
 
