@@ -64,6 +64,8 @@ router.put("/courses/:courseId", CourseController.updateCourse);
 router.delete("/courses/:deletingCourseId", CourseController.deleteCourse);
 // Get all courses
 router.post("/getcourses", Auth, CourseController.getCourses);
+//get All courses of a college
+router.get("/courses/college", Auth, CourseController.getAllCoursesOfCollege);
 // Get course by ID
 router.get("/courses/:courseId", CourseController.getCourseById);
 // Search and get course by name

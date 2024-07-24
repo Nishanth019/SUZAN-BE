@@ -14,6 +14,12 @@ router.put("/updateuser", Auth, UserController.updateUser);
 // Route for deleting a user 
 router.delete("/deleteuser", Auth, UserController.deleteUser);
 
+// Route for getting count of all users
+router.get("/getuserscount", Auth, UserController.getUsersCount);
+
+// Route for getting count of all admins
+router.get("/getadminscount", Auth, UserController.getAdminsCount);
+
 // Route for accessing the user by ID
 router.get("/getuser/:id", UserController.getUserFromId);
 

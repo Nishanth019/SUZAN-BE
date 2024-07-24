@@ -30,9 +30,11 @@ class FeedbackController {
         try {
             const collegeId = req.user.college; 
             const feedbacks = await Feedback.find({ college: collegeId }).sort({ created_at: -1 });
+
+            const feedbackCount= await Feedback.find({ college: collegeId }).countDocuments();
         
             
-            res.status(200).json({ feedbacks, success: true });
+            res.status(200).json({ feedbackCount:feedbackCount , feedbacks:feedbacks, success: true });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error', success: false });

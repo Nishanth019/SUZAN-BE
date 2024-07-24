@@ -132,6 +132,31 @@ class UserController {
     }
   };
 
+  //get count of all users of a college
+  getUsersCount = async (req, res) => {
+    try {
+      const { college } = req.user;
+      const studentCount = await User.countDocuments({ college });
+      res.status(200).json({ studentCount, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  }
+
+  //get all admins count of a college
+  getAdminsCount = async (req, res) => {
+    try {
+      const { college } = req.user;
+      const adminCount = await User.countDocuments({ college, role: "admin" });
+      res.status(200).json({ adminCount, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  }
+
+
     // Upload user picture
     uploadPicture = async (req, res) => {
       try {

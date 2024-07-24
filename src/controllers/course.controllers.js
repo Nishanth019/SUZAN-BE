@@ -775,8 +775,20 @@ class CourseController {
       }
 
       const courses = await Course.find(query);
+      res.status(200).json({courses: courses, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
 
-      res.status(200).json({ courses: courses, success: true });
+  //get all courses of a college
+  getAllCoursesOfCollege = async (req, res) => {
+    try {
+      const collegeId = req.user.college;
+      const courses = await Course.find({ college: collegeId });
+      const courseCount = await Course.countDocuments({ college: collegeId });
+      res.status(200).json({ courseCount:courseCount, courses: courses, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
