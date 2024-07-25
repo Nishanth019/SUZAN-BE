@@ -562,6 +562,102 @@ class AuthController {
         .json({ success: false, message: "Internal server error" });
     }
   };
+
+  // Send OTP
+sendOtp = async (req, res) => {
+  try {
+    console.log(123)
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    let otp = Math.floor(1000 + Math.random() * 9000); // Generate random 4-digit OTP
+
+    user.otp = otp;
+    await user.save();
+
+    await sendMail(email, "OTP Verification", `Your OTP is ${otp}`);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Verify OTP
+verifyOtp = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Incorrect OTP" });
+    }
+
+    user.otp = -1;
+    user.isEmailVerified = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
+// Update Password
+updatePassword = async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+
+    // Validate inputs
+    if (!email || !newPassword) {
+      return res.status(400).json({ success: false, message: "Email and new password are required" });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Hash the new password
+    const hashedPassword = Hasher.hash(newPassword, 10);
+
+    // Update the user's password
+    user.password = hashedPassword;
+    user.otp=-1;
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+
 }
 
 module.exports.AuthController = new AuthController();
