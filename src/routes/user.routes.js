@@ -8,8 +8,14 @@ const upload = require('../middlewares/file-upload.middlewares.js');
 // Route for getting current user
 router.get("/currentuser", Auth, UserController.getCurrentUser);
 
+// Route for getting a user with email
+router.get("/userbyemail", Auth, UserController.getUserByEmail);
+
 // Route for updating a user
 router.put("/updateuser", Auth, UserController.updateUser);
+
+// Route for updating a user role
+router.put("/updateuserrole", Auth, UserController.updateUserRole);
 
 // Route for deleting a user 
 router.delete("/deleteuser", Auth, UserController.deleteUser);

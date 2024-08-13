@@ -29,5 +29,14 @@ router.post("/changepassword", AuthController.verifyOtpAndChangePassword);
 // Route for logout
 router.post("/signout", AuthController.signout);
 
+// Routes for sending OTP
+router.post("/sendotp", AuthController.sendOtp);
+
+// Routes for verifying OTP
+router.post("/verifyotp", AuthController.verifyOtp);
+
+// Routes for updating password
+router.post("/updatepassword", AuthController.updatePassword);
+
 
 module.exports.AuthRouter = router;
