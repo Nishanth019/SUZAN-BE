@@ -67,9 +67,18 @@ router.post("/getcourses", Auth, CourseController.getCourses);
 //get All courses of a college
 router.get("/courses/college", Auth, CourseController.getAllCoursesOfCollege);
 // Get course by ID
-router.get("/courses/:courseId", CourseController.getCourseById);
+router.get("/courses/:courseId", Auth ,CourseController.getCourseById);
+
+router.patch("/courses/inc", Auth ,CourseController.incrementCourseViews);
+
+//get course views
+router.post("/courses/countviews", Auth,CourseController.getCourseViews);
+// router.get("/courses/countviews/:id", Auth,CourseController.getCourseViews);
+
 // Search and get course by name
 router.post("/courses/search", Auth, CourseController.searchCourses);
+
+
 // GET /api/courses/search?searchTerm=<search_term>
 
 //pdfs and links

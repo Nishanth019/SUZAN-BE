@@ -5,6 +5,7 @@ const { Program } = require("../models/Program.model.js");
 const { Course } = require("../models/Course.model.js");
 const { Pdf } = require("../models/pdf.model.js");
 const { Link } = require("../models/link.model.js");
+const { CourseViews }= require("../models/CourseViews.model.js")
 
 // const { FieldOfStudy } = require("../models/FieldOfStudy.model.js");
 
@@ -794,6 +795,53 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+  //get number of visits of any course
+ incrementCourseViews = async (req, res) => {
+  try {
+    console.log("tommy 123")
+    const collegeId = req.user.college;
+    console.log(collegeId);
+    // Assuming the college ID is stored in req.user.college
+
+    // Increment the course_views or create a new document if it doesn't exist
+    console.log("hiiiiiiiiiias132sa13212311as3");
+    let courseViews = await CourseViews.findOneAndUpdate(
+      { college: collegeId },
+      { $inc: { course_views: 1 } },
+      { new: true, upsert: true }
+    );
+
+    // If the document was upserted, check if it was newly created
+    if (!courseViews) {
+      courseViews = new CourseViews({ college: collegeId, course_views: 1 });
+      await courseViews.save();
+    }
+    res.status(200);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Errors", success: false });
+  }
+};
+
+//get courseviews of a particular college
+getCourseViews = async (req, res) => {
+  try {
+    const collegeId = req.user.college;
+      // Construct base query object with collegeId
+      console.log("hi nani 1",collegeId);
+      const courseViews = await CourseViews.findOne({ college: collegeId });
+      console.log("hi nani 1",courseViews);
+    res.status(200).json({ courseViews: courseViews.course_views, success: true });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Errors", success: false });
+  }
+};
+
+
+
 
   async searchCourses(req, res) {
     try {
