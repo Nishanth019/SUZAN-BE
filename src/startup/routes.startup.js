@@ -3,17 +3,24 @@ const express = require("express");
 const morgan = require("morgan"); // for consoling api request calls
 const helmet = require("helmet"); // secures connection by adding additional header
 const cors = require("cors"); // handling cors errors
+const cookieParser = require("cookie-parser"); // handling cookies
 var session = require("express-session");
 
-
-
 //Routers
-// const { UserRouter } = require("../routes/users.routes");
+const { UserRouter } = require("../routes/user.routes.js");
+const { CollegeRouter } = require("../routes/college.routes.js");
+const { AuthRouter } = require("../routes/auth.routes.js");
+const { CourseRouter } = require("../routes/course.routes.js");
+const { CommentRouter } = require("../routes/comment.routes.js");
+const { FeedbackRouter } = require("../routes/feedback.routes.js");
 
 module.exports = (app) => {
-
   var corsOptions = {
-    origin: process.env.CLIENT_APP_URL, // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
+    origin: [
+      process.env.CLIENT_APP_URL,
+      "https://suzan.vercel.app",
+      "http://localhost:3000",
+    ], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
     optionsSuccessStatus: 200,
   };
 
@@ -23,11 +30,15 @@ module.exports = (app) => {
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept"
     );
-    res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET, POST, PUT, DELETE, OPTIONS"
+    );
     res.header("Access-Control-Allow-Credentials", "true");
     next();
   });
   app.use(express.urlencoded({ extended: true })); // parses encoded url
+  app.use(cookieParser());
   app.use(morgan("tiny")); // initiating console api requests
   app.use(helmet());
   app.use(cors(corsOptions));
@@ -42,11 +53,15 @@ module.exports = (app) => {
   );
 
   //start of routes
-//   app.use("/api/users", UserRouter);
-
+  app.use("/api/users", UserRouter);
+  app.use("/api/colleges", CollegeRouter);
+  app.use("/api/auth", AuthRouter);
+  app.use("/api/course", CourseRouter);
+  app.use("/api/comments",CommentRouter);
+  app.use("/api/feedback", FeedbackRouter);
 
   //handling async errors in apis
-//   app.use(ErrorHandler);
+  //   app.use(ErrorHandler);
 
   //adding additional apis
   app.get("/", (req, res) =>
