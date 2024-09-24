@@ -349,7 +349,7 @@ class CourseController {
         program: programId,
         college: collegeId,
       });
-      console.log(22, fieldsOfStudy);
+      // console.log(22, fieldsOfStudy);
       res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
     } catch (error) {
       console.error(error);
@@ -517,7 +517,7 @@ class CourseController {
   // Helper function to create multiple PDFs
   async createMultiplePdfs(pdfDataArray) {
     try {
-      console.log(77, pdfDataArray);
+      // console.log(77, pdfDataArray);
       const pdfs = await Promise.all(
         pdfDataArray.map(async (pdfData) => await this.createPdf(pdfData))
       );
@@ -531,7 +531,7 @@ class CourseController {
   // Helper function to create multiple links
   async createLinks(linkDataArray) {
     try {
-      console.log(555, linkDataArray);
+      // console.log(555, linkDataArray);
       const links = await Promise.all(
         linkDataArray.map(async (linkData) => await this.createLink(linkData))
       );

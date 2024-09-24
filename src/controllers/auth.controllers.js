@@ -414,7 +414,7 @@ class AuthController {
         .status(200)
         .cookie("token", token, {
           expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          secure: true, // set to true if your using https
+          secure: true, 
           httpOnly: true,
           sameSite: "none",
         })
