@@ -175,7 +175,7 @@ class CourseController {
       const { searchTerm } = req.query;
       const collegeId = req.user.college;
       const baseQuery = { college: collegeId };
-      console.log(123,searchTerm,baseQuery)
+      console.log(123, searchTerm, baseQuery);
       if (searchTerm) {
         baseQuery.$or = [
           { program_name: { $regex: searchTerm, $options: "i" } },
@@ -250,8 +250,6 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
-
-
 
   // Update field of study
   updateFieldOfStudy = async (req, res) => {
@@ -368,7 +366,7 @@ class CourseController {
           .status(404)
           .json({ error: "Field of study not found", success: false });
       }
-      console.log(3);
+
       res.status(200).json({ fieldOfStudy: fieldOfStudy, success: true });
     } catch (error) {
       console.error(error);
@@ -378,29 +376,27 @@ class CourseController {
   //get all fieldofstudy of a college
   getAllFieldOfStudyOfCollege = async (req, res) => {
     try {
-      
       console.log(523);
       const collegeId = req.user.college;
       //find first program using that college id
       // const programId= await Program.findOne({college: collegeId});
 
       const fieldsOfStudy = await FieldOfStudy.find({
-          college: collegeId,
+        college: collegeId,
       });
       console.log(22, fieldsOfStudy);
-      res.status(200).json({ fieldsOfStudy: fieldsOfStudy , success: true });
+      res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
 
-
   getAllSemestersByFieldOfStudy = async (req, res) => {
     try {
       const { fieldOfStudyId } = req.params;
-      console.log("gfgg",req.params);
-      console.log("gfgg",fieldOfStudyId);
+      console.log("gfgg", req.params);
+      console.log("gfgg", fieldOfStudyId);
       // Find the field of study by its ID
       const fieldOfStudy = await FieldOfStudy.findOne({ _id: fieldOfStudyId });
 
@@ -485,65 +481,70 @@ class CourseController {
   // Helper function to create a single PDF
   async createPdf(pdfData) {
     try {
+      if (!pdfData || !pdfData.pdf_name || !pdfData.pdf_url) {
+        console.log("No PDF data provided, skipping PDF creation.");
+        return;
+      }
       const { pdf_name, pdf_url } = pdfData;
-      // console.log(69, pdf_name, pdf_url);
-      const pdf = new Pdf({
-        pdf_name,
-        pdf_url,
-      });
+      const pdf = new Pdf({ pdf_name, pdf_url });
       return await pdf.save();
     } catch (error) {
-      console.error(error);
-      // throw new Error("Failed to create PDF");
+      console.error("Error in createPdf:", error.message);
+      throw new Error("Failed to create PDF");
     }
   }
 
   // Helper function to create a single link
   async createLink(linkData) {
     try {
+      if (!linkData || !linkData.link_name || !linkData.link_url) {
+        console.log("No Links data provided, skipping link creation.");
+        return null;
+      }
       const { link_name, link_url } = linkData;
-
-      const link = new Link({
-        link_name,
-        link_url,
-      });
+      const link = new Link({ link_name, link_url });
       return await link.save();
     } catch (error) {
-      console.error(error);
-      // throw new Error("Failed to create link");
+      console.error("Error in createLink:", error.message);
+      throw new Error("Failed to create link");
     }
   }
 
   // Helper function to create multiple PDFs
   async createMultiplePdfs(pdfDataArray) {
     try {
-      // console.log(77, pdfDataArray);
+      if (!Array.isArray(pdfDataArray)) {
+        console.log("Invalid PDF data array");
+        return;
+      }
       const pdfs = await Promise.all(
         pdfDataArray.map(async (pdfData) => await this.createPdf(pdfData))
       );
       return pdfs;
     } catch (error) {
-      console.error(error);
-      // throw new Error("Failed to create multiple PDFs");
+      console.error("Error in createMultiplePdfs:", error.message);
+      throw new Error("Failed to create multiple PDFs");
     }
   }
 
   // Helper function to create multiple links
   async createLinks(linkDataArray) {
     try {
-      // console.log(555, linkDataArray);
+      if (!Array.isArray(linkDataArray)) {
+        console.log("Invalid link data array");
+        return;
+      }
       const links = await Promise.all(
         linkDataArray.map(async (linkData) => await this.createLink(linkData))
       );
-      // console.log(99,links)
       return links;
     } catch (error) {
-      console.error(error);
-      // throw new Error("Failed to create multiple links");
+      console.error("Error in createLinks:", error.message);
+      throw new Error("Failed to create multiple links");
     }
   }
 
-  //pdf and link
+  // Controller to get media by course ID
   getMediaByCourseId = async (req, res) => {
     try {
       const { courseId } = req.params;
@@ -553,29 +554,26 @@ class CourseController {
         return res.status(404).json({ error: "Course not found" });
       }
 
-      const syllabus = await Pdf.findById(course.syllabus_pdf);
+      const syllabus = course.syllabus_pdf
+        ? await Pdf.findById(course.syllabus_pdf)
+        : null;
 
-      if (!syllabus) {
-        return res.status(404).json({ error: "Syllabus Pdf is not found" });
-      }
+      const resourcesPdf = course.resources_pdf.length
+        ? await Pdf.find({ _id: { $in: course.resources_pdf } })
+        : [];
 
-      // Retrieve resources PDFs
-      const resourcesPdf = await Pdf.find({
-        _id: { $in: course.resources_pdf },
-      });
+      const resourcesLinks = course.resources_links.length
+        ? await Link.find({ _id: { $in: course.resources_links } })
+        : [];
 
-      // Retrieve resources links
-      const resourcesLinks = await Link.find({
-        _id: { $in: course.resources_links },
-      });
+      const pyqPdf = course.pyq_pdf.length
+        ? await Pdf.find({ _id: { $in: course.pyq_pdf } })
+        : [];
 
-      // Retrieve pyq PDFs
-      const pyqPdf = await Pdf.find({ _id: { $in: course.pyq_pdf } });
+      const pyqLinks = course.pyq_links.length
+        ? await Link.find({ _id: { $in: course.pyq_links } })
+        : [];
 
-      // Retrieve pyq links
-      const pyqLinks = await Link.find({ _id: { $in: course.pyq_links } });
-
-      // Return the fetched media
       res.status(200).json({
         course: course,
         syllabus: syllabus,
@@ -590,6 +588,7 @@ class CourseController {
     }
   };
 
+  // Controller to create a course
   createCourse = async (req, res) => {
     try {
       const {
@@ -603,24 +602,35 @@ class CourseController {
         course_type,
         credits,
         syllabus,
-        resource_links,
-        resource_pdfs,
-        pyq_links,
-        pyq_pdfs,
+        resource_links = [],
+        resource_pdfs = [],
+        pyq_links = [],
+        pyq_pdfs = [],
       } = req.body;
 
       const collegeId = req.user.college; // Extract collegeId from req.user
 
-      // Create PDFs for syllabus
-      const syllabusPdf = await this.createPdf(syllabus);
+      // Create PDF for syllabus (only if syllabus data is provided)
+      let syllabusPdf = null;
+      if (syllabus && syllabus.pdf_name && syllabus.pdf_url) {
+        syllabusPdf = await this.createPdf(syllabus);
+      }
 
-      // Create links for resource links, PYQs links
-      const resourceLinkDocuments = await this.createLinks(resource_links);
-      const pyqLinkDocuments = await this.createLinks(pyq_links);
+      // Create links for resource links and PYQs links (only if data is provided)
+      const resourceLinkDocuments = resource_links.length
+        ? await this.createLinks(resource_links)
+        : [];
+      const pyqLinkDocuments = pyq_links.length
+        ? await this.createLinks(pyq_links)
+        : [];
 
-      // Create PDFs for resource & pyqs PDFs
-      const resourcePdfDocuments = await this.createMultiplePdfs(resource_pdfs);
-      const pyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
+      // Create PDFs for resource PDFs and PYQs PDFs (only if data is provided)
+      const resourcePdfDocuments = resource_pdfs.length
+        ? await this.createMultiplePdfs(resource_pdfs)
+        : [];
+      const pyqPdfs = pyq_pdfs.length
+        ? await this.createMultiplePdfs(pyq_pdfs)
+        : [];
 
       // Create the course
       const course = new Course({
@@ -634,7 +644,7 @@ class CourseController {
         instructor_photo,
         course_type,
         credits,
-        syllabus_pdf: syllabusPdf._id,
+        syllabus_pdf: syllabusPdf ? syllabusPdf._id : null,
         resources_pdf: resourcePdfDocuments.map((pdf) => pdf._id),
         resources_links: resourceLinkDocuments.map((link) => link._id),
         pyq_pdf: pyqPdfs.map((pdf) => pdf._id),
@@ -649,7 +659,7 @@ class CourseController {
         message: "Course created successfully",
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error in createCourse:", error.message);
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
@@ -670,53 +680,72 @@ class CourseController {
         pyq_links,
         pyq_pdfs,
       } = req.body;
-      console.log(1, req.body);
-      // const collegeId = req.user.college; // Extract collegeId from req.user
-      const courseId = req.params.courseId; // Extract courseId from params
-      console.log(2, courseId);
+
+      const courseId = req.params.courseId;
+
       // Update PDFs for syllabus
       const updatedSyllabusPdf = await this.createPdf({
         pdf_name: "Syllabus",
         pdf_url: syllabus,
       });
-      console.log(3, updatedSyllabusPdf);
-      // Update links for resource links, PYQs links
+
+      // Update links for resources and PYQs
       const updatedResourceLinkDocuments = await this.createLinks(
         resource_links
       );
-      console.log(4, updatedResourceLinkDocuments);
       const updatedPyqLinkDocuments = await this.createLinks(pyq_links);
-      console.log(5, updatedPyqLinkDocuments);
-      // Update PDFs for resource & pyqs PDFs
+
+      // Update PDFs for resources and PYQs
       const updatedResourcePdfDocuments = await this.createMultiplePdfs(
         resource_pdfs
       );
-      console.log(6, updatedResourcePdfDocuments);
       const updatedPyqPdfs = await this.createMultiplePdfs(pyq_pdfs);
-      console.log(7, updatedPyqPdfs);
+
+      // Construct the $set and $unset objects dynamically
+      const updateFields = {
+        course_name,
+        course_code,
+        instructor_name,
+        instructor_photo,
+        course_type,
+        credits,
+        resources_pdf:
+          updatedResourcePdfDocuments?.length > 0
+            ? updatedResourcePdfDocuments.map((pdf) => pdf._id)
+            : [],
+        resources_links:
+          updatedResourceLinkDocuments?.length > 0
+            ? updatedResourceLinkDocuments.map((link) => link._id)
+            : [],
+        pyq_pdf:
+          updatedPyqPdfs?.length > 0
+            ? updatedPyqPdfs.map((pdf) => pdf._id)
+            : [],
+        pyq_links:
+          updatedPyqLinkDocuments?.length > 0
+            ? updatedPyqLinkDocuments.map((link) => link._id)
+            : [],
+      };
+
+      // Prepare $unset for fields that should be removed (null or empty)
+      const unsetFields = {};
+      if (!updatedSyllabusPdf) {
+        unsetFields.syllabus_pdf = "";
+      }
+
+      // Combine $set and $unset
+      const updateOptions = {
+        $set: updateFields,
+        ...(Object.keys(unsetFields).length && { $unset: unsetFields }),
+      };
+
       // Update the course
       const updatedCourse = await Course.findByIdAndUpdate(
         courseId,
-        {
-          $set: {
-            course_name,
-            course_code,
-            instructor_name,
-            instructor_photo,
-            course_type,
-            credits,
-            syllabus_pdf: updatedSyllabusPdf._id,
-            resources_pdf: updatedResourcePdfDocuments.map((pdf) => pdf._id),
-            resources_links: updatedResourceLinkDocuments.map(
-              (link) => link._id
-            ),
-            pyq_pdf: updatedPyqPdfs.map((pdf) => pdf._id),
-            pyq_links: updatedPyqLinkDocuments.map((link) => link._id),
-          },
-        },
+        updateOptions,
         { new: true }
       );
-      console.log(10);
+
       res.status(200).json({
         course: updatedCourse,
         success: true,
@@ -776,7 +805,7 @@ class CourseController {
       }
 
       const courses = await Course.find(query);
-      res.status(200).json({courses: courses, success: true });
+      res.status(200).json({ courses: courses, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
@@ -789,7 +818,9 @@ class CourseController {
       const collegeId = req.user.college;
       const courses = await Course.find({ college: collegeId });
       const courseCount = await Course.countDocuments({ college: collegeId });
-      res.status(200).json({ courseCount:courseCount, courses: courses, success: true });
+      res
+        .status(200)
+        .json({ courseCount: courseCount, courses: courses, success: true });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: "Internal Server Error", success: false });
@@ -797,51 +828,49 @@ class CourseController {
   };
 
   //get number of visits of any course
- incrementCourseViews = async (req, res) => {
-  try {
-    console.log("tommy 123")
-    const collegeId = req.user.college;
-    console.log(collegeId);
-    // Assuming the college ID is stored in req.user.college
+  incrementCourseViews = async (req, res) => {
+    try {
+      console.log("tommy 123");
+      const collegeId = req.user.college;
+      console.log(collegeId);
+      // Assuming the college ID is stored in req.user.college
 
-    // Increment the course_views or create a new document if it doesn't exist
-    console.log("hiiiiiiiiiias132sa13212311as3");
-    let courseViews = await CourseViews.findOneAndUpdate(
-      { college: collegeId },
-      { $inc: { course_views: 1 } },
-      { new: true, upsert: true }
-    );
+      // Increment the course_views or create a new document if it doesn't exist
+      console.log("hiiiiiiiiiias132sa13212311as3");
+      let courseViews = await CourseViews.findOneAndUpdate(
+        { college: collegeId },
+        { $inc: { course_views: 1 } },
+        { new: true, upsert: true }
+      );
 
-    // If the document was upserted, check if it was newly created
-    if (!courseViews) {
-      courseViews = new CourseViews({ college: collegeId, course_views: 1 });
-      await courseViews.save();
+      // If the document was upserted, check if it was newly created
+      if (!courseViews) {
+        courseViews = new CourseViews({ college: collegeId, course_views: 1 });
+        await courseViews.save();
+      }
+      res.status(200);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Errors", success: false });
     }
-    res.status(200);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Errors", success: false });
-  }
-};
+  };
 
-//get courseviews of a particular college
-getCourseViews = async (req, res) => {
-  try {
-    const collegeId = req.user.college;
+  //get courseviews of a particular college
+  getCourseViews = async (req, res) => {
+    try {
+      const collegeId = req.user.college;
       // Construct base query object with collegeId
-      console.log("hi nani 1",collegeId);
+      console.log("hi nani 1", collegeId);
       const courseViews = await CourseViews.findOne({ college: collegeId });
-      console.log("hi nani 1",courseViews);
-    res.status(200).json({ courseViews: courseViews.course_views, success: true });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Errors", success: false });
-  }
-};
-
-
-
+      console.log("hi nani 1", courseViews);
+      res
+        .status(200)
+        .json({ courseViews: courseViews.course_views, success: true });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Errors", success: false });
+    }
+  };
 
   async searchCourses(req, res) {
     try {
