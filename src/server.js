@@ -28,6 +28,6 @@ const startServer = (port) => {
   });
 };
 
-const PORT = process.env.PORT || 8001; // Start from the defined port
+const PORT = process.env.PORT || 8080; // Start from the defined port
 keepServerAlive();
 startServer(PORT);
