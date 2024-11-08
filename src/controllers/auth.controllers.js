@@ -16,7 +16,7 @@ class AuthController {
         existingUser.isEmailVerified &&
         existingUser.isUserVerified
       ) {
-        if (existingUser.role !== "admin") {
+        if (existingUser.role !== "mainadmin" || existingUser.role !== "admin") {
           return res.status(400).json({
             success: false,
             message: "This email is registered as a student",

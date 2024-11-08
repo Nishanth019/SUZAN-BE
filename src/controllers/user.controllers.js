@@ -225,6 +225,62 @@ class UserController {
       res.status(500).json({ success: false, error: "Internal Server Error" });
     }
   };
+
+   // Get all admins
+   getAllAdmins = async (req, res) => {
+    try {
+      const { college } = req.user;
+      const admins = await User.find({ college, role: "admin" });
+
+      if (!admins || admins.length === 0) {
+        return res.status(200).json({
+          success: true,
+          admins:[],
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        admins,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        success: false,
+        error: "Internal Server Error",
+      });
+    }
+  };
+
+  // Function to switch main admin access
+  handleSwitchAdmin = async (req, res) => {
+    try {
+      const { currentAdminId, newAdminId } = req.body;
+       console.log(currentAdminId,newAdminId);
+      // Validation (Optional): You can add checks to ensure valid IDs and roles.
+
+      const currentAdmin = await User.findById(currentAdminId);
+      const newAdmin = await User.findById(newAdminId);
+        console.log(123, currentAdmin, newAdmin);
+      if (!currentAdmin || !newAdmin) {
+        return res
+          .status(404)
+          .json({ success: false, message: "Admin(s) not found" });
+      }
+
+      // Directly set the new roles
+      currentAdmin.role = "admin";
+      newAdmin.role = "mainadmin";
+
+      await Promise.all([currentAdmin.save(), newAdmin.save()]);
+
+      res.status(200).json({ success: true, message: "Main Admin Switched" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ success: false, error: "Internal Server Error" });
+    }
+  };
+
 }
 
 module.exports.UserController = new UserController();
