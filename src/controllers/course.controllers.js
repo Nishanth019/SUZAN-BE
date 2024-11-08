@@ -580,6 +580,7 @@ class CourseController {
 
       res.status(200).json({
         course: course,
+      
         syllabus: syllabus,
         resourcesPdf: resourcesPdf,
         resourcesLinks: resourcesLinks,
