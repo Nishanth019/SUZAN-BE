@@ -38,5 +38,13 @@ router.put("/updateuser/:id", UserController.updateUserById);
 // Route for uploading a picture
 router.post('/uploadpicture', Auth, upload.single('picture'), UserController.uploadPicture);
 
+// Route for getting all admins
+router.get("/getalladmins", Auth, UserController.getAllAdmins);
+
+// Route for switching main admin access 
+router.put("/switchmainadmin", Auth, UserController.handleSwitchAdmin);
+
+
+
 
 module.exports.UserRouter = router;
