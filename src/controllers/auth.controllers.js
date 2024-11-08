@@ -355,7 +355,7 @@ class AuthController {
   // Signin Logic
   signin = async (req, res) => {
     try {
-      console.log(2, req.body);
+      // console.log(2, req.body);
       const { email, password } = req.body;
 
       // Find user by email
@@ -408,7 +408,7 @@ class AuthController {
       }
 
       // Password matches, generate token
-      const token = await sendToken(user);
+      const token =  sendToken(user);
 
       res
         .status(200)

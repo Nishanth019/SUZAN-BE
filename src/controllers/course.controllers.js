@@ -480,6 +480,7 @@ class CourseController {
 
   // Helper function to create a single PDF
   async createPdf(pdfData) {
+    console.log(123,pdfData)
     try {
       if (!pdfData || !pdfData.pdf_name || !pdfData.pdf_url) {
         console.log("No PDF data provided, skipping PDF creation.");
@@ -573,6 +574,9 @@ class CourseController {
       const pyqLinks = course.pyq_links.length
         ? await Link.find({ _id: { $in: course.pyq_links } })
         : [];
+      const videoLinks = course.video_links.length
+        ? await Link.find({ _id: { $in: course.video_links } })
+        : [];
 
       res.status(200).json({
         course: course,
@@ -581,6 +585,7 @@ class CourseController {
         resourcesLinks: resourcesLinks,
         pyqPdf: pyqPdf,
         pyqLinks: pyqLinks,
+        videoLinks: videoLinks,
         success: true,
       });
     } catch (error) {
@@ -597,8 +602,8 @@ class CourseController {
         semester,
         course_name,
         course_code,
-        instructor_name,
-        instructor_photo,
+        // instructor_name,
+        // instructor_photo,
         course_type,
         credits,
         syllabus,
@@ -606,22 +611,30 @@ class CourseController {
         resource_pdfs = [],
         pyq_links = [],
         pyq_pdfs = [],
+        video_links = [],
       } = req.body;
 
       const collegeId = req.user.college; // Extract collegeId from req.user
 
       // Create PDF for syllabus (only if syllabus data is provided)
       let syllabusPdf = null;
-      if (syllabus && syllabus.pdf_name && syllabus.pdf_url) {
-        syllabusPdf = await this.createPdf(syllabus);
+      console.log(1234,syllabus)
+      if (syllabus) {
+        syllabusPdf = await this.createPdf(
+          {pdf_name: "Syllabus",
+          pdf_url: syllabus,}
+        );
       }
-
+      console.log("check", syllabusPdf);
       // Create links for resource links and PYQs links (only if data is provided)
       const resourceLinkDocuments = resource_links.length
         ? await this.createLinks(resource_links)
         : [];
       const pyqLinkDocuments = pyq_links.length
         ? await this.createLinks(pyq_links)
+        : [];
+      const videoLinkDocuments = video_links.length
+        ? await this.createLinks(video_links)
         : [];
 
       // Create PDFs for resource PDFs and PYQs PDFs (only if data is provided)
@@ -640,8 +653,8 @@ class CourseController {
         program,
         college: collegeId,
         course_code,
-        instructor_name,
-        instructor_photo,
+        // instructor_name,
+        // instructor_photo,
         course_type,
         credits,
         syllabus_pdf: syllabusPdf ? syllabusPdf._id : null,
@@ -649,6 +662,7 @@ class CourseController {
         resources_links: resourceLinkDocuments.map((link) => link._id),
         pyq_pdf: pyqPdfs.map((pdf) => pdf._id),
         pyq_links: pyqLinkDocuments.map((link) => link._id),
+        video_links: videoLinkDocuments.map((link) => link._id),
       });
 
       await course.save();
@@ -670,8 +684,8 @@ class CourseController {
       const {
         course_name,
         course_code,
-        instructor_name,
-        instructor_photo,
+        // instructor_name,
+        // instructor_photo,
         course_type,
         credits,
         syllabus,
@@ -679,10 +693,11 @@ class CourseController {
         resource_pdfs,
         pyq_links,
         pyq_pdfs,
+        video_links,
       } = req.body;
 
       const courseId = req.params.courseId;
-
+      // console.log(1,syllabus)
       // Update PDFs for syllabus
       const updatedSyllabusPdf = await this.createPdf({
         pdf_name: "Syllabus",
@@ -694,6 +709,8 @@ class CourseController {
         resource_links
       );
       const updatedPyqLinkDocuments = await this.createLinks(pyq_links);
+      console.log(1,video_links)
+      const updatedVideoLinkDocuments = await this.createLinks(video_links);
 
       // Update PDFs for resources and PYQs
       const updatedResourcePdfDocuments = await this.createMultiplePdfs(
@@ -705,10 +722,11 @@ class CourseController {
       const updateFields = {
         course_name,
         course_code,
-        instructor_name,
-        instructor_photo,
+        // instructor_name,
+        // instructor_photo,
         course_type,
         credits,
+        syllabus_pdf: updatedSyllabusPdf,
         resources_pdf:
           updatedResourcePdfDocuments?.length > 0
             ? updatedResourcePdfDocuments.map((pdf) => pdf._id)
@@ -724,6 +742,10 @@ class CourseController {
         pyq_links:
           updatedPyqLinkDocuments?.length > 0
             ? updatedPyqLinkDocuments.map((link) => link._id)
+            : [],
+        video_links:
+          updatedVideoLinkDocuments?.length > 0
+            ? updatedVideoLinkDocuments.map((link) => link._id)
             : [],
       };
 
@@ -783,11 +805,11 @@ class CourseController {
   // Get all courses
   getCourses = async (req, res) => {
     try {
-      console.log(23456789034567);
+      // console.log(23456789034567);
       const { programId, fieldOfStudyId, semesterId } = req.body;
-      console.log(123, programId, fieldOfStudyId, semesterId);
+      // console.log(123, programId, fieldOfStudyId, semesterId);
 
-      console.log(23456789034567);
+      // console.log(23456789034567);
       const collegeId = req.user.college;
 
       let query = { college: collegeId };
@@ -875,6 +897,7 @@ class CourseController {
   async searchCourses(req, res) {
     try {
       let { programId, fieldOfStudyId, semesterId, searchTerm } = req.body;
+      console.log(69, programId, fieldOfStudyId, semesterId, searchTerm);
       const collegeId = req.user.college;
 
       // Construct base query object with collegeId

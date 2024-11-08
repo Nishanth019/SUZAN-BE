@@ -32,14 +32,14 @@ const courseSchema = new Schema({
     type: String,
     required: true,
   },
-  instructor_name: {
-    type: String,
-    required: true,
-  },
-  instructor_photo: {
-    type: String,
-    // required: true,
-  },
+  // instructor_name: {
+  //   type: String,
+  //   required: true,
+  // },
+  // instructor_photo: {
+  //   type: String,
+  //   // required: true,
+  // },
   course_type: {
     type: String,
     enum: ["compulsory", "elective"],
@@ -73,6 +73,12 @@ const courseSchema = new Schema({
     }
   ], // Array of PDFs for Previous Year Questions
   pyq_links: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: 'link',
+    }
+  ], 
+  video_links: [
     {
       type: Schema.Types.ObjectId,
       ref: 'link',
