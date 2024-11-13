@@ -20,7 +20,8 @@ module.exports = (app) => {
       process.env.CLIENT_APP_URL,
       "https://suzan.vercel.app",
       "http://localhost:3000",
-    ], // CLIENT_APP_URL=http://localhost:3000, Declare this in .env file
+      "https://suzan-fe-main.vercel.app",
+    ], 
     optionsSuccessStatus: 200,
   };
 
