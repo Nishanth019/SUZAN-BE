@@ -130,26 +130,27 @@ class AuthController {
         branch,
         batch,
         email_domain,
+        college_logo,
       } = req.body;
 
       const user = await User.findOne({ email });
 
-      console.log(college_name);
+      // console.log(college_name);
       if (!user) {
         return res
           .status(404)
           .json({ success: false, message: "User not found" });
       }
-      console.log(1)
+      // console.log(1)
       // Check if the college exists or create a new one
       let college = await College.findOne({ college_name });
-      console.log(2)
+      // console.log(2)
       if (college) {
         return res
           .status(404)
           .json({ success: false, message: "College already exists" });
       }
-      console.log(3)
+      // console.log(3)
       if (!college) {
         college = new College({
           college_name: college_name,
@@ -159,6 +160,7 @@ class AuthController {
           pincode: pincode,
           country: country,
           email_domain: email_domain,
+          college_logo: college_logo,
         });
         await college.save();
       }
