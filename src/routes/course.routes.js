@@ -13,6 +13,8 @@ router.put("/programs/updateProgram",Auth, CourseController.updateProgram);
 router.delete("/programs/:programId", Auth,CourseController.deleteProgram);
 // Get all programs
 router.get("/programs", Auth, CourseController.getAllPrograms);
+// Get all programs by college ID
+router.get("/programs/college/:collegeId", Auth, CourseController.getAllProgramsByCollegeId);
 // Get program by ID
 router.get("/programs/:programId", CourseController.getProgramById);
 // Search and get program by name
