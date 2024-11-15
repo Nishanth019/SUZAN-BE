@@ -153,6 +153,25 @@ class CourseController {
       res.status(500).json({ error: "Internal Server Error", success: false });
     }
   };
+
+  // Get all programs by college ID
+getAllProgramsByCollegeId = async (req, res) => {
+  try {
+    const { collegeId } = req.params; // Extract college ID from request parameters
+    if (!collegeId) {
+      return res
+        .status(400)
+        .json({ error: "College ID is required", success: false });
+    }
+
+    const programs = await Program.find({ college: collegeId }); 
+    res.status(200).json({ programs: programs, success: true });
+  } catch (error) {
+    console.error("Error fetching programs by college ID:", error);
+    res.status(500).json({ error: "Internal Server Error", success: false });
+  }
+};
+
   // Get program by ID
   getProgramById = async (req, res) => {
     try {
