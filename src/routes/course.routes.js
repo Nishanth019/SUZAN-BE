@@ -39,7 +39,7 @@ router.delete(
   CourseController.deleteFieldOfStudy
 );
 // Get all fields of study
-router.get("/fieldOfStudy/:id", Auth, CourseController.getAllFieldsOfStudy);
+router.get("/fieldOfStudy/:id",  CourseController.getAllFieldsOfStudy);
 // Get all fields of study by college id
 router.get("/fieldOfStudy", Auth, CourseController.getAllFieldOfStudyOfCollege);
 // Get field of study by ID
