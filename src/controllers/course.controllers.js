@@ -359,12 +359,9 @@ getAllProgramsByCollegeId = async (req, res) => {
     try {
       console.log(req.params.id);
       const programId = req.params.id;
-      const collegeId = req.user.college;
-      // console.log(5234, programId, collegeId);
 
       const fieldsOfStudy = await FieldOfStudy.find({
         program: programId,
-        college: collegeId,
       });
       // console.log(22, fieldsOfStudy);
       res.status(200).json({ fieldsOfStudy: fieldsOfStudy, success: true });
