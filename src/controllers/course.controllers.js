@@ -223,6 +223,17 @@ getAllProgramsByCollegeId = async (req, res) => {
           .status(404)
           .json({ error: "Program not found", success: false });
       }
+      if (!field_of_studyname) {
+        return res
+          .status(404)
+          .json({ error: "field of study name not found", success: false });
+      }
+      if (!field_of_studyfullname) {
+        return res
+          .status(404)
+          .json({ error: "field of study fullname not found", success: false });
+      }
+
       // console.log("nani", field_of_studyname, field_of_studyfullname)
       // Create the field of study
       const existingFieldOfStudy = await FieldOfStudy.findOne({
@@ -277,6 +288,13 @@ getAllProgramsByCollegeId = async (req, res) => {
       const { programId, field_of_studyname, field_of_studyfullname } =
         req.body; // Extract update data from request body
       const collegeId = req.user.college;
+      console.log(
+        22,
+        fieldOfStudyId,
+        programId,
+        field_of_studyname,
+        field_of_studyfullname
+      );
       //  console.log(1, programId, fieldOfStudyId, field_of_studyname, field_of_studyfullname);
       // console.log("nannni: ",fieldOfStudyId, field_of_studyname, field_of_studyfullname)
       // Check if any of the fields are undefined
@@ -290,10 +308,9 @@ getAllProgramsByCollegeId = async (req, res) => {
       const existingFieldOfStudy = await FieldOfStudy.findOne({
         college: collegeId,
         program: programId,
-        $or: [
-          { field_of_studyname: field_of_studyname },
-          { field_of_studyfullname: field_of_studyfullname },
-        ],
+              
+          field_of_studyfullname: field_of_studyfullname ,
+      
       });
 
       if (existingFieldOfStudy) {
@@ -851,6 +868,34 @@ getAllProgramsByCollegeId = async (req, res) => {
     }
   };
 
+  //get all courses of the field of study
+  getAllCoursesOfFieldOfStudy = async (req, res) => {
+    try {
+      const { programId, fieldOfStudyId } = req.query;
+        // console.log(1234444, programId, fieldOfStudyId);
+        
+        // console.log(23456789034567);
+        const collegeId = req.user.college;
+        // console.log(1234444, programId, fieldOfStudyId, collegeId);
+
+        let query = { college: collegeId };
+
+        if (programId) {
+          query.program = programId;
+        }
+
+        if (fieldOfStudyId) {
+          query.field_of_study = fieldOfStudyId;
+        }
+
+        const courses = await Course.find(query);
+        res.status(200).json({ courses: courses, success: true });
+    }
+     catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error", success: false });
+    }
+  };
   //get all courses of a college
   getAllCoursesOfCollege = async (req, res) => {
     try {

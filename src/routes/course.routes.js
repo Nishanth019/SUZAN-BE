@@ -66,6 +66,12 @@ router.delete("/courses/:deletingCourseId", CourseController.deleteCourse);
 router.post("/getcourses", Auth, CourseController.getCourses);
 //get All courses of a college
 router.get("/courses/college", Auth, CourseController.getAllCoursesOfCollege);
+//get All courses of a field of study
+router.get(
+  "/getcourses/fieldOfStudy",
+  Auth,
+  CourseController.getAllCoursesOfFieldOfStudy
+);
 // Get course by ID
 router.get("/courses/:courseId", Auth ,CourseController.getCourseById);
 
