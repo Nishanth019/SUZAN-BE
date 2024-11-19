@@ -18,6 +18,7 @@ module.exports = (app) => {
   var corsOptions = {
     origin: [
       process.env.CLIENT_APP_URL,
+      "https://www.suzan.co.in",
       "https://suzan.vercel.app",
       "http://localhost:3000",
       "https://suzan-fe-main.vercel.app",
