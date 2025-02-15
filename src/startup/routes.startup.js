@@ -17,7 +17,7 @@ const { FeedbackRouter } = require("../routes/feedback.routes.js");
 module.exports = (app) => {
   // Allowed origins list
   const allowedOrigins = [
-    process.env.CLIENT_APP_URL,
+    process.env.CLIENT_APP_URL, // make sure this is set correctly in your env
     "https://www.suzan.co.in",
     "https://suzan.vercel.app",
     "http://localhost:3000",
@@ -29,19 +29,23 @@ module.exports = (app) => {
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
-
+      
       if (allowedOrigins.indexOf(origin) !== -1) {
         // If the origin is in the allowed list, reflect the origin in the CORS header
-        callback(null, true);
+        return callback(null, true);
       } else {
-        callback(new Error("Not allowed by CORS"));
+        return callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     optionsSuccessStatus: 200,
   };
 
-  // Parse JSON and urlencoded data
+  // Enable CORS for all routes and handle preflight OPTIONS requests
+  app.use(cors(corsOptions));
+  app.options('*', cors(corsOptions));
+
+  // Parse JSON and URL-encoded data
   app.use(express.json({ limit: "9999000009mb" })); // Body parser: parses request body
   app.use(express.urlencoded({ extended: true })); // Parses URL-encoded bodies
 
@@ -54,11 +58,9 @@ module.exports = (app) => {
   // Security middleware (adds various security headers)
   app.use(helmet());
 
-  // Use CORS with our custom options
-  app.use(cors(corsOptions));
-
-  // Additional headers (if needed) – ensure these do not conflict with CORS settings
-  app.use(function (req, res, next) {
+  // (Optional) Custom headers if needed
+  // Note: Ensure these do not conflict with the headers set by the CORS middleware.
+  app.use((req, res, next) => {
     res.header(
       "Access-Control-Allow-Headers",
       "Origin, X-Requested-With, Content-Type, Accept"
@@ -67,7 +69,7 @@ module.exports = (app) => {
       "Access-Control-Allow-Methods",
       "GET, POST, PUT, DELETE, OPTIONS"
     );
-    res.header("Access-Control-Allow-Credentials", "true");
+    // The Access-Control-Allow-Credentials header is already set by cors() when credentials is true.
     next();
   });
 
@@ -77,12 +79,12 @@ module.exports = (app) => {
       secret: "secret",
       resave: false,
       saveUninitialized: true,
-      // Note: `cookie.secure` should be `true` only if you are serving your app over HTTPS.
-      cookie: { secure: true },
+      // Use secure cookies only when in production and serving over HTTPS.
+      cookie: { secure: process.env.NODE_ENV === "production" },
     })
   );
 
-  // Start of routes
+  // Routes
   app.use("/api/users", UserRouter);
   app.use("/api/colleges", CollegeRouter);
   app.use("/api/auth", AuthRouter);
@@ -90,10 +92,7 @@ module.exports = (app) => {
   app.use("/api/comments", CommentRouter);
   app.use("/api/feedback", FeedbackRouter);
 
-  // Handling async errors in APIs (if you have a custom error handler, uncomment below)
-  // app.use(ErrorHandler);
-
-  // Additional API endpoints
+  // Basic route to verify server is running
   app.get("/", (req, res) =>
     res.send({
       error: false,
