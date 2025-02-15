@@ -15,16 +15,11 @@ const { CommentRouter } = require("../routes/comment.routes.js");
 const { FeedbackRouter } = require("../routes/feedback.routes.js");
 
 module.exports = (app) => {
-  var corsOptions = {
-    origin: [
-      process.env.CLIENT_APP_URL,
-      "https://www.suzan.co.in",
-      "https://suzan.vercel.app",
-      "http://localhost:3000",
-      "https://suzan-fe-main.vercel.app",
-    ], 
-    optionsSuccessStatus: 200,
-  };
+var corsOptions = {
+  origin: "*", // Allows requests from any origin
+  optionsSuccessStatus: 200,
+};
+
 
   app.use(express.json({ limit: "9999000009mb" })); // body parser, parses request body
   app.use(function (req, res, next) {
